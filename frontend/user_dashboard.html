@@ -1,75 +1,244 @@
-<!DOCTYPE html>
-<html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>User Dashboard - Udaan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveler Dashboard - Udaan</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --accent: #f59e0b;
+            --bg-body: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-body);
+            color: #1e293b;
+        }
+
+        /* Modern Navbar */
+        .navbar {
+            background-color: #0f172a !important;
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Dashboard Container */
+        .dashboard-container {
+            padding-top: 2rem;
+            padding-bottom: 5rem;
+        }
+
+        /* Search Card */
+        .search-card {
+            background: var(--glass-bg);
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-card-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+
+        /* Date Bar */
+        .date-item {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent !important;
+        }
+
+        .date-item:hover:not(.bg-primary) {
+            background-color: #f1f5f9 !important;
+            transform: translateY(-2px);
+        }
+
+        /* Flight Card */
+        .flight-card {
+            border: none;
+            border-radius: 20px;
+            background: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .flight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .price-badge {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Modal Enhancements */
+        .modal-content {
+            border-radius: 24px;
+            border: none;
+        }
+
+        .modal-header {
+            background: #0f172a;
+            color: white;
+            border-radius: 24px 24px 0 0;
+            padding: 1.5rem 2rem;
+        }
+
+        /* Custom Buttons */
+        .btn-booking {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 10px 20px;
+            transition: all 0.2s;
+        }
+
+        .btn-booking:hover {
+            transform: scale(1.02);
+        }
+
+        /* Wallet Styling */
+        .wallet-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            border-radius: 24px;
+            border: none;
+        }
+
+        /* Utility */
+        .cursor-pointer {
+            cursor: pointer;
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4 sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">✈️ Udaan User</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link text-white" href="#" onclick="showSection('search')">Search
-                            Flights</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#" onclick="showSection('bookings')">My
-                            Bookings</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#" onclick="showSection('wallet')">My
-                            Wallet</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="index.html">Logout</a></li>
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <span class="me-2 text-primary">✈️</span> Udaan <span
+                    class="ms-2 badge bg-primary fs-6 fw-normal">Traveler</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navDashboard">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navDashboard">
+                <ul class="navbar-nav ms-auto gap-2">
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('search')"><i
+                                class="bi bi-search me-2"></i>Find Flights</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('bookings')"><i
+                                class="bi bi-ticket-perforated me-2"></i>My Bookings</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('wallet')"><i
+                                class="bi bi-wallet2 me-2"></i>My Wallet</a></li>
+                    <li class="nav-item ms-lg-3"><a class="nav-link text-danger fw-bold" href="index.html"
+                            onclick="localStorage.clear()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container dashboard-container">
 
         <!-- Search Section -->
         <div id="search-section">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4">
-                    <h4 class="mb-3">Find Flights</h4>
-                    <form id="searchForm" class="row g-3 align-items-end">
+            <div class="card search-card mb-5">
+                <div class="search-card-header">
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-airplane-engines me-2"></i>Where to next?</h4>
+                    <p class="mb-0 opacity-75 small">Book your next adventure in seconds</p>
+                </div>
+                <div class="card-body p-4 p-lg-5">
+                    <form id="searchForm" class="row g-4">
                         <div class="col-md-5">
-                            <label class="form-label small fw-bold">From</label>
-                            <input type="text" id="origin" class="form-control" placeholder="Origin City" required>
+                            <label class="form-label small fw-bold text-muted text-uppercase">From</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-geo-alt"></i></span>
+                                <div id="origin-container" class="flex-grow-1">
+                                    <input type="text" id="origin" class="form-control border-start-0"
+                                        placeholder="Origin City" required>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label small fw-bold">To</label>
-                            <input type="text" id="destination" class="form-control" placeholder="Destination City"
-                                required>
+                            <label class="form-label small fw-bold text-muted text-uppercase">To</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i
+                                        class="bi bi-geo-fill"></i></span>
+                                <div id="dest-container" class="flex-grow-1">
+                                    <input type="text" id="destination" class="form-control border-start-0"
+                                        placeholder="Destination City" required>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-2 d-grid">
-                            <button type="submit" class="btn btn-primary">Search</button>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm"
+                                style="border-radius: 12px;">
+                                <i class="bi bi-search me-2"></i>Search
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
             <!-- Date Selection Bar -->
-            <div class="d-flex align-items-center mb-4 overflow-hidden">
-                <button class="btn btn-outline-secondary border-0 btn-sm me-2" onclick="navigateDates(-1)">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <div id="date-bar" class="d-flex flex-grow-1 justify-content-between">
-                    <!-- Dates will be injected here -->
+            <div class="mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <h5 class="mb-0 fw-bold text-muted small text-uppercase">Choose Date</h5>
+                    <div class="flex-grow-1 border-bottom"></div>
                 </div>
-                <button class="btn btn-outline-secondary border-0 btn-sm ms-2" onclick="navigateDates(1)">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-                <div class="ms-3">
-                    <input type="date" id="directDatePicker" class="form-control form-control-sm"
-                        onchange="jumpToDate(this.value)">
+                <div class="d-flex align-items-center mt-3 gap-2">
+                    <button class="btn btn-white shadow-sm rounded-circle border p-2" onclick="navigateDates(-1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <div id="date-bar" class="d-flex flex-grow-1 justify-content-between gap-2 overflow-auto py-2">
+                        <!-- Dates will be injected here -->
+                    </div>
+                    <button class="btn btn-white shadow-sm rounded-circle border p-2" onclick="navigateDates(1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                    <div class="ms-lg-3">
+                        <input type="date" id="directDatePicker" class="form-control shadow-sm border-0 bg-white"
+                            onchange="jumpToDate(this.value)" style="border-radius: 12px; height: 48px;">
+                    </div>
                 </div>
             </div>
-            <!-- Search Section -->
-            <div id="results" class="row">
-                <p class="text-muted">Search to see flights...</p>
+
+            <!-- Results Section -->
+            <div id="results" class="row g-4 mt-2">
+                <div class="col-12 text-center py-5">
+                    <img src="https://cdni.iconscout.com/illustration/premium/thumb/searching-for-flight-tickets-online-4461622-3714488.png"
+                        alt="Search" style="max-width: 250px; opacity: 0.6;">
+                    <p class="text-muted mt-4">Fill in your destination to see available flights.</p>
+                </div>
             </div>
         </div>
 
@@ -373,55 +542,71 @@
                 resultsDiv.innerHTML = '';
 
                 if (flights.length === 0) {
-                    resultsDiv.innerHTML = '<div class="col-12"><div class="alert alert-warning">No scheduled flights found for this route on the selected date.</div></div>';
+                    resultsDiv.innerHTML = `
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm text-center py-5 rounded-4">
+                                <div class="card-body">
+                                    <i class="bi bi-info-circle display-4 text-warning mb-3"></i>
+                                    <h5>No Flights Found</h5>
+                                    <p class="text-muted">Sorry, we don't have any flights for this route on the selected date.</p>
+                                </div>
+                            </div>
+                        </div>`;
                     return;
                 }
 
-                // Add search dropdown population if not already there, but user mentioned city codes
-                // Typically search inputs on user dashboard are text for now, but let's check if we can improve
-
                 flights.forEach(f => {
                     resultsDiv.innerHTML += `
-                        <div class="col-md-6 mb-3">
-                            <div class="card shadow-sm border-0 h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <h5 class="card-title text-primary">${f.airlineName}</h5>
-                                        <div class="text-end">
-                                            <span class="badge bg-primary d-block mb-1">E: ₹${f.economyPrice}</span>
-                                            <span class="badge bg-info d-block">B: ₹${f.businessPrice}</span>
-                                        </div>
-                                    </div>
-                                    <h6 class="card-subtitle mb-2 text-muted">${f.flightNumber}</h6>
-                                    <div class="d-flex justify-content-between mt-3">
+                        <div class="col-md-6">
+                            <div class="card flight-card h-100">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
                                         <div>
-                                            <small class="text-muted">From</small>
-                                            <p class="fw-bold mb-0">${f.origin}</p>
-                                            <small>${f.departureTime ? new Date(f.departureTime).toLocaleString() : 'TBA'}</small>
+                                            <h5 class="fw-bold mb-0 text-primary">${f.airlineName}</h5>
+                                            <small class="text-muted fw-bold">${f.flightNumber}</small>
                                         </div>
-                                        <div class="text-center align-self-center">➝</div>
                                         <div class="text-end">
-                                            <small class="text-muted">To</small>
-                                            <p class="fw-bold mb-0">${f.destination}</p>
-                                            <small>${f.arrivalTime ? new Date(f.arrivalTime).toLocaleString() : 'TBA'}</small>
+                                            <div class="price-badge mb-1">₹${f.economyPrice} <small class="text-muted fw-normal" style="font-size: 0.7rem;">(Economy)</small></div>
+                                            <div class="text-secondary fw-bold" style="font-size: 0.9rem;">₹${f.businessPrice} <small class="text-muted fw-normal" style="font-size: 0.7rem;">(Business)</small></div>
                                         </div>
                                     </div>
-                                    <div class="row g-2 mt-3">
-                                        <div class="col">
-                                            <button class="btn btn-outline-primary btn-sm w-100" 
+                                    
+                                    <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-4 my-4">
+                                        <div class="text-center">
+                                            <div class="fw-bold fs-5">${f.origin.split(' ')[0]}</div>
+                                            <small class="text-muted">${f.departureTime ? new Date(f.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'TBA'}</small>
+                                        </div>
+                                        <div class="flex-grow-1 px-4 text-center position-relative">
+                                            <hr class="border-primary border-dashed opacity-25">
+                                            <i class="bi bi-airplane-fill text-primary position-absolute top-50 start-50 translate-middle bg-light px-2" style="font-size: 1.2rem;"></i>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="fw-bold fs-5">${f.destination.split(' ')[0]}</div>
+                                            <small class="text-muted">${f.arrivalTime ? new Date(f.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'TBA'}</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <button class="btn btn-outline-primary btn-booking w-100" 
                                                 onclick="bookFlight(${f.id}, 'ECONOMY', ${f.economyPrice})"
                                                 ${f.economySeatsAvailable <= 0 ? 'disabled' : ''}>
-                                                Book Economy (${f.economySeatsAvailable} left)
+                                                <small class="d-block text-uppercase" style="font-size: 0.6rem;">Book Economy</small>
+                                                <span class="fs-6">${f.economySeatsAvailable} Left</span>
                                             </button>
                                         </div>
-                                        <div class="col">
-                                            <button class="btn btn-outline-info btn-sm w-100" 
+                                        <div class="col-6">
+                                            <button class="btn btn-primary btn-booking w-100 shadow-sm" 
                                                 onclick="bookFlight(${f.id}, 'BUSINESS', ${f.businessPrice})"
                                                 ${f.businessSeatsAvailable <= 0 ? 'disabled' : ''}>
-                                                Book Business (${f.businessSeatsAvailable} left)
+                                                <small class="d-block text-uppercase text-white-50" style="font-size: 0.6rem;">Book Business</small>
+                                                <span class="fs-6">${f.businessSeatsAvailable} Left</span>
                                             </button>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-top-0 px-4 pb-4">
+                                    <small class="text-muted"><i class="bi bi-calendar3 me-2"></i>${new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</small>
                                 </div>
                             </div>
                         </div>
@@ -746,8 +931,8 @@
                 const res = await fetch(`${API_BASE}/public/cities`);
                 const cities = await res.json();
                 const cityOptions = cities.map(c => `<option value="${c.name}">${c.name} (${c.code})</option>`).join('');
-                document.getElementById('origin').outerHTML = `<select id="origin" class="form-select" required><option value="">From</option>${cityOptions}</select>`;
-                document.getElementById('destination').outerHTML = `<select id="destination" class="form-select" required><option value="">To</option>${cityOptions}</select>`;
+                document.getElementById('origin-container').innerHTML = `<select id="origin" class="form-select border-start-0" required><option value="">Select Origin</option>${cityOptions}</select>`;
+                document.getElementById('dest-container').innerHTML = `<select id="destination" class="form-select border-start-0" required><option value="">Select Destination</option>${cityOptions}</select>`;
             } catch (err) { console.error(err); }
         }
         loadSearchCities();
