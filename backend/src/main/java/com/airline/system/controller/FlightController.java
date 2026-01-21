@@ -18,6 +18,11 @@ public class FlightController {
 
     // --- Admin Endpoints ---
 
+    @GetMapping("/admin/flights")
+    public List<Flight> getAllFlightsForAdmin() {
+        return flightService.getAllFlights();
+    }
+
     @PostMapping("/admin/flights")
     public ResponseEntity<Flight> addFlight(@RequestBody Flight flight) {
         return ResponseEntity.ok(flightService.addFlight(flight));

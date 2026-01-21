@@ -9,17 +9,22 @@ import java.util.List;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findByUser(User user);
+        List<Booking> findByUser(User user);
 
-    List<Booking> findByUserId(Long userId);
+        List<Booking> findByUserId(Long userId);
 
-    org.springframework.data.domain.Page<Booking> findByUserId(Long userId,
-            org.springframework.data.domain.Pageable pageable);
+        org.springframework.data.domain.Page<Booking> findByUserId(Long userId,
+                        org.springframework.data.domain.Pageable pageable);
 
-    List<Booking> findByFlightAirlineName(String airlineName);
+        List<Booking> findByFlightAirlineName(String airlineName);
 
-    org.springframework.data.domain.Page<Booking> findByFlightAirlineName(String airlineName,
-            org.springframework.data.domain.Pageable pageable);
+        org.springframework.data.domain.Page<Booking> findByFlightAirlineName(String airlineName,
+                        org.springframework.data.domain.Pageable pageable);
 
-    boolean existsByFlightId(Long flightId);
+        boolean existsByFlightId(Long flightId);
+
+        long countByFlightAirlineName(String airlineName);
+
+        @org.springframework.data.jpa.repository.Query("SELECT SUM(b.totalPrice) FROM Booking b WHERE b.flight.airlineName = :airlineName AND b.status = :status")
+        Double sumTotalPriceByAirlineAndStatus(String airlineName, Booking.BookingStatus status);
 }

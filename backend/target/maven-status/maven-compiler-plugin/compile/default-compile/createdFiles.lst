@@ -25,6 +25,7 @@ com\airline\system\entity\User.class
 com\airline\system\controller\FlightController.class
 com\airline\system\repository\FlightRepository.class
 com\airline\system\repository\UserRepository.class
+com\airline\system\config\DatabaseConfig.class
 com\airline\system\controller\WalletController.class
 com\airline\system\entity\WalletTransaction$TransactionType.class
 com\airline\system\repository\WalletRepository.class

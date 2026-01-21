@@ -101,6 +101,15 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getAllBookings(pageable));
     }
 
+    @GetMapping("/bookings/{id}")
+    public ResponseEntity<?> getBookingById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(bookingService.getBookingById(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/airline/bookings")
     public ResponseEntity<?> getAirlineBookings(
             @RequestParam String airlineName,
@@ -109,5 +118,22 @@ public class BookingController {
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
                 page, size, org.springframework.data.domain.Sort.by("bookingTime").descending());
         return ResponseEntity.ok(bookingService.getBookingsByAirlineName(airlineName, pageable));
+    }
+
+    @GetMapping("/admin/bookings/recent")
+    public ResponseEntity<?> getRecentBookings(@RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(bookingService.getRecentBookings(limit));
+    }
+
+    @GetMapping("/airline/bookings/recent")
+    public ResponseEntity<?> getRecentAirlineBookings(
+            @RequestParam String airlineName,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(bookingService.getRecentBookingsByAirline(airlineName, limit));
+    }
+
+    @GetMapping("/airline/stats")
+    public ResponseEntity<?> getAirlineStats(@RequestParam String airlineName) {
+        return ResponseEntity.ok(bookingService.getAirlineStats(airlineName));
     }
 }

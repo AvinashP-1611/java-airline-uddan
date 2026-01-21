@@ -98,6 +98,34 @@ public class BookingService {
         return bookingRepository.findByFlightAirlineName(airlineName, pageable);
     }
 
+    public Booking getBookingById(Long id) {
+        return bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+    }
+
+    public List<Booking> getRecentBookings(int limit) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
+                0, limit, org.springframework.data.domain.Sort.by("bookingTime").descending());
+        return bookingRepository.findAll(pageable).getContent();
+    }
+
+    public List<Booking> getRecentBookingsByAirline(String airlineName, int limit) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
+                0, limit, org.springframework.data.domain.Sort.by("bookingTime").descending());
+        return bookingRepository.findByFlightAirlineName(airlineName, pageable).getContent();
+    }
+
+    public java.util.Map<String, Object> getAirlineStats(String airlineName) {
+        long totalBookings = bookingRepository.countByFlightAirlineName(airlineName);
+        Double totalRevenue = bookingRepository.sumTotalPriceByAirlineAndStatus(airlineName,
+                Booking.BookingStatus.CONFIRMED);
+
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+        stats.put("totalBookings", totalBookings);
+        stats.put("totalRevenue", totalRevenue != null ? totalRevenue : 0.0);
+        return stats;
+    }
+
     @Transactional
     public void cancelBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)

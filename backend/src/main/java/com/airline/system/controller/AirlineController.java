@@ -8,13 +8,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api")
 public class AirlineController {
 
     @Autowired
     private AirlineRepository airlineRepository;
 
-    @GetMapping("/public/airlines")
+    @GetMapping({ "/public/airlines", "/admin/airlines" })
     public List<Airline> getAllAirlines() {
         return airlineRepository.findAll();
     }

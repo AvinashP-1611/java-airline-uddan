@@ -228,7 +228,6 @@
                         <thead>
                             <tr>
                                 <th>Airline Name</th>
-                                <th>Owner (User)</th>
                                 <th>Total Flights</th>
                                 <th class="text-end">Actions</th>
                             </tr>
@@ -287,6 +286,7 @@
                                 <th>Route</th>
                                 <th>Amount</th>
                                 <th>Status</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="bookingsTableBody"></tbody>
@@ -341,6 +341,24 @@
                                 <input type="number" id="f_bus_total" class="form-control rounded-3" value="20"
                                     required>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Departure Time</label>
+                                <input type="datetime-local" id="f_dep_time" class="form-control rounded-3" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Arrival Time</label>
+                                <input type="datetime-local" id="f_arr_time" class="form-control rounded-3" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Economy Price (₹)</label>
+                                <input type="number" id="f_eco_price" class="form-control rounded-3" placeholder="5000"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Business Price (₹)</label>
+                                <input type="number" id="f_bus_price" class="form-control rounded-3" placeholder="15000"
+                                    required>
+                            </div>
                             <div class="col-12 mt-4">
                                 <button type="submit" class="btn btn-primary w-100 btn-admin">Create Flight</button>
                             </div>
@@ -360,15 +378,10 @@
                     </div>
                     <div class="modal-body p-4">
                         <form id="addAirlineForm">
-                            <div class="mb-3">
+                            <div class="mb-4">
                                 <label class="form-label small fw-bold">Airline Name</label>
                                 <input type="text" id="a_name" class="form-control rounded-3" placeholder="e.g. Vistara"
                                     required>
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label small fw-bold">Assign to User (Username)</label>
-                                <input type="text" id="a_user" class="form-control rounded-3"
-                                    placeholder="Enter owner's username" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 btn-admin">Create Airline</button>
                         </form>
@@ -398,6 +411,47 @@
                                     maxlength="3" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 btn-admin">Add City</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add User Modal -->
+        <div class="modal fade" id="addUserModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title fw-bold">Register New User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form id="addUserForm">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Username</label>
+                                <input type="text" id="u_username" class="form-control rounded-3" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Password</label>
+                                <input type="password" id="u_password" class="form-control rounded-3" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Role</label>
+                                <select id="u_role" class="form-select rounded-3" required>
+                                    <option value="USER">Regular User</option>
+                                    <option value="AIRLINE">Airline Manager</option>
+                                    <option value="ADMIN">System Admin</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Full Name</label>
+                                <input type="text" id="u_fullname" class="form-control rounded-3" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Email</label>
+                                <input type="email" id="u_email" class="form-control rounded-3" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 btn-admin mt-3">Register User</button>
                         </form>
                     </div>
                 </div>
@@ -456,6 +510,7 @@
             if (id === 'flights') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addFlightModal"><i class="bi bi-plus-lg me-2"></i>New Flight</button>';
             if (id === 'airlines') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addAirlineModal"><i class="bi bi-plus-lg me-2"></i>Add Airline</button>';
             if (id === 'cities') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addCityModal"><i class="bi bi-plus-lg me-2"></i>Add City</button>';
+            if (id === 'users') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="bi bi-person-plus me-2"></i>New User</button>';
         }
 
         function refreshData(id) {
@@ -494,19 +549,31 @@
 
         async function loadAirlines() {
             try {
-                const res = await fetch(`${API_BASE}/admin/airlines`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
-                const data = await res.json();
-                document.getElementById('airlinesTableBody').innerHTML = data.map(a => `
-                    <tr>
-                        <td class="fw-bold">${a.name}</td>
-                        <td><span class="text-muted"><i class="bi bi-person-circle me-1"></i>${a.ownerUsername}</span></td>
-                        <td>${a.flights ? a.flights.length : 0}</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-light border-0" onclick="deleteItem('airlines', ${a.id})"><i class="bi bi-trash text-danger"></i></button>
-                        </td>
-                    </tr>
-                `).join('');
-                updateStats('airlines', data.length);
+                const [airlinesRes, flightsRes, usersRes] = await Promise.all([
+                    fetch(`${API_BASE}/public/airlines`),
+                    fetch(`${API_BASE}/admin/flights`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } }),
+                    fetch(`${API_BASE}/admin/users`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } })
+                ]);
+
+                const airlines = await airlinesRes.json();
+                const flights = await flightsRes.json();
+                const users = await usersRes.json();
+
+                document.getElementById('airlinesTableBody').innerHTML = airlines.map(a => {
+                    const flightCount = flights.filter(f => f.airlineName === a.name).length;
+                    const owner = users.find(u => u.airlineName === a.name && u.role === 'AIRLINE');
+
+                    return `
+                        <tr>
+                            <td class="fw-bold">${a.name}</td>
+                            <td><span class="badge bg-primary bg-opacity-10 text-primary">${flightCount} Flights</span></td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-light border-0" onclick="deleteItem('airlines', ${a.id})"><i class="bi bi-trash text-danger"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                updateStats('airlines', airlines.length);
             } catch (err) { console.error(err); }
         }
 
@@ -558,10 +625,85 @@
                         <td class="small">${b.flight ? b.flight.origin.split(' ')[0] + ' ➝ ' + b.flight.destination.split(' ')[0] : 'N/A'}</td>
                         <td class="fw-bold text-success">₹${(b.totalPrice || 0).toLocaleString()}</td>
                         <td><span class="pill-badge bg-${b.status === 'CONFIRMED' ? 'success' : 'danger'} bg-opacity-10 text-${b.status === 'CONFIRMED' ? 'success' : 'danger'}">${b.status}</span></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary border-0" onclick="viewBookingDetails(${b.id})">
+                                <i class="bi bi-eye"></i> Details
+                            </button>
+                        </td>
                     </tr>
                 `).join('');
                 renderBookingPagination(data.totalPages, page);
                 updateStats('bookings', data.totalElements);
+            } catch (err) { console.error(err); }
+        }
+
+        async function viewBookingDetails(id) {
+            try {
+                const res = await fetch(`${API_BASE}/bookings/${id}`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
+                const b = await res.json();
+
+                const modalHtml = `
+                    <div class="modal fade" id="detailsModal" tabindex="-1">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content border-0 shadow-lg">
+                                <div class="modal-header bg-primary text-white border-0 py-4">
+                                    <h5 class="modal-title fw-bold">Booking Details #${b.id}</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body p-4">
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <label class="text-muted small text-uppercase fw-bold mb-2">Flight Information</label>
+                                            <div class="p-3 bg-light rounded-3">
+                                                <div class="fw-bold text-dark fs-5 mb-1">${b.flight ? b.flight.airlineName : 'N/A'} - ${b.flight ? b.flight.flightNumber : 'N/A'}</div>
+                                                <div class="text-primary fw-bold mb-2">${b.flight ? b.flight.origin : 'N/A'} ➝ ${b.flight ? b.flight.destination : 'N/A'}</div>
+                                                <div class="badge bg-white text-dark border px-3 py-2 shadow-sm">${b.flightClass} CLASS</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="text-muted small text-uppercase fw-bold mb-2">Customer & Payment</label>
+                                            <div class="p-3 bg-light rounded-3">
+                                                <div class="fw-bold text-dark mb-1">${b.user ? b.user.username : 'N/A'}</div>
+                                                <div class="text-muted small mb-2">${b.user ? b.user.email : ''}</div>
+                                                <div class="text-success fw-bold fs-5">Total Paid: ₹${(b.totalPrice || 0).toLocaleString()}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="text-muted small text-uppercase fw-bold mb-2">Passenger Manifest (${b.passengers ? b.passengers.length : 0})</label>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-hover mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="border-0">Full Name</th>
+                                                            <th class="border-0">Age</th>
+                                                            <th class="border-0">Gender</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        ${b.passengers ? b.passengers.map(p => `
+                                                            <tr>
+                                                                <td>${p.fullName}</td>
+                                                                <td>${p.age}</td>
+                                                                <td><span class="badge bg-secondary bg-opacity-10 text-secondary">${p.gender}</span></td>
+                                                            </tr>
+                                                        `).join('') : '<tr><td colspan="3">No passengers found</td></tr>'}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Remove old modal if exists
+                const old = document.getElementById('detailsModal');
+                if (old) old.remove();
+
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                new bootstrap.Modal(document.getElementById('detailsModal')).show();
             } catch (err) { console.error(err); }
         }
 
@@ -608,7 +750,11 @@
                 origin: document.getElementById('f_origin_select').value,
                 destination: document.getElementById('f_dest_select').value,
                 economySeatsTotal: document.getElementById('f_eco_total').value,
-                businessSeatsTotal: document.getElementById('f_bus_total').value
+                businessSeatsTotal: document.getElementById('f_bus_total').value,
+                departureTime: document.getElementById('f_dep_time').value,
+                arrivalTime: document.getElementById('f_arr_time').value,
+                economyPrice: document.getElementById('f_eco_price').value,
+                businessPrice: document.getElementById('f_bus_price').value
             };
             const res = await fetch(`${API_BASE}/admin/flights`, {
                 method: 'POST',
@@ -626,18 +772,20 @@
 
         document.getElementById('addAirlineForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('a_name').value;
-            const user = document.getElementById('a_user').value;
-            const res = await fetch(`${API_BASE}/admin/airlines?name=${name}&ownerUsername=${user}`, {
+            const airline = {
+                name: document.getElementById('a_name').value
+            };
+            const res = await fetch(`${API_BASE}/admin/airlines`, {
                 method: 'POST',
-                headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + AUTH_HEADER },
+                body: JSON.stringify(airline)
             });
             if (res.ok) {
                 showMsg('Airline account created');
                 bootstrap.Modal.getInstance(document.getElementById('addAirlineModal')).hide();
                 loadAirlines();
             } else {
-                showMsg('Error: Check if user exists or already owns an airline', false);
+                showMsg('Error creating airline', false);
             }
         });
 
@@ -655,6 +803,30 @@
                 loadCities();
             } else {
                 showMsg('Error adding city', false);
+            }
+        });
+
+        document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = {
+                username: document.getElementById('u_username').value,
+                password: document.getElementById('u_password').value,
+                role: document.getElementById('u_role').value,
+                fullName: document.getElementById('u_fullname').value,
+                email: document.getElementById('u_email').value
+            };
+            const res = await fetch(`${API_BASE}/admin/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + AUTH_HEADER },
+                body: JSON.stringify(user)
+            });
+            if (res.ok) {
+                showMsg('User created successfully');
+                bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                loadUsers();
+            } else {
+                const msg = await res.text();
+                showMsg(msg || 'Error creating user', false);
             }
         });
 
@@ -676,7 +848,7 @@
         async function preloadDropdowns() {
             try {
                 const [airlines, cities] = await Promise.all([
-                    fetch(`${API_BASE}/admin/airlines`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } }).then(r => r.json()),
+                    fetch(`${API_BASE}/public/airlines`).then(r => r.json()),
                     fetch(`${API_BASE}/public/cities`).then(r => r.json())
                 ]);
                 document.getElementById('f_airline_select').innerHTML = airlines.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
