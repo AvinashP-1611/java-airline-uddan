@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard - Udaan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">✈️ Udaan User</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link text-white" href="#" onclick="showSection('search')">Search
+                            Flights</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="#" onclick="showSection('bookings')">My
+                            Bookings</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="#" onclick="showSection('wallet')">My
+                            Wallet</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="index.html">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Search Section -->
+        <div id="search-section">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="mb-3">Find Flights</h4>
+                    <form id="searchForm" class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold">From</label>
+                            <input type="text" id="origin" class="form-control" placeholder="Origin City" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold">To</label>
+                            <input type="text" id="destination" class="form-control" placeholder="Destination City"
+                                required>
+                        </div>
+                        <div class="col-md-2 d-grid">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Date Selection Bar -->
+            <div class="d-flex align-items-center mb-4 overflow-hidden">
+                <button class="btn btn-outline-secondary border-0 btn-sm me-2" onclick="navigateDates(-1)">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <div id="date-bar" class="d-flex flex-grow-1 justify-content-between">
+                    <!-- Dates will be injected here -->
+                </div>
+                <button class="btn btn-outline-secondary border-0 btn-sm ms-2" onclick="navigateDates(1)">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <div class="ms-3">
+                    <input type="date" id="directDatePicker" class="form-control form-control-sm"
+                        onchange="jumpToDate(this.value)">
+                </div>
+            </div>
+            <!-- Search Section -->
+            <div id="results" class="row">
+                <p class="text-muted">Search to see flights...</p>
+            </div>
+        </div>
+
+        <!-- Bookings Section -->
+        <div id="bookings-section" style="display:none;">
+            <h4 class="mb-3">My Bookings</h4>
+            <div id="bookings-list" class="row">
+                <!-- Data loaded via JS -->
+            </div>
+
+            <!-- Booking Pagination -->
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Booking pagination">
+                    <ul class="pagination pagination-sm" id="booking-pagination">
+                        <!-- Pagination buttons -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Wallet Section -->
+        <div id="wallet-section" style="display:none;">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 mb-4 bg-primary text-white">
+                        <div class="card-body p-4 text-center">
+                            <h5 class="card-title mb-3">Wallet Balance</h5>
+                            <h2 class="display-5 fw-bold" id="wallet-balance">₹0.00</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <h4 class="mb-3">Transaction History</h4>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Type</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="wallet-transactions">
+                                        <!-- Transactions loaded via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Passenger Details Modal -->
+    <div class="modal fade" id="passengerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Passenger Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Step Indicator -->
+                    <div class="d-flex justify-content-center mb-4">
+                        <div id="step1-indicator" class="badge rounded-pill bg-primary px-3 py-2 me-2">1. Passengers
+                        </div>
+                        <div id="step2-indicator" class="badge rounded-pill bg-light text-dark border px-3 py-2">2.
+                            Payment</div>
+                    </div>
+
+                    <!-- Step 1: Passenger Details -->
+                    <div id="step1-content">
+                        <div id="passenger-container">
+                            <!-- Dynamic Passenger Forms -->
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-3" id="addPassengerBtn">
+                            + Add Another Passenger
+                        </button>
+                        <div class="alert alert-info py-2 mb-0">
+                            <small>Note: Maximum passengers allowed depends on seat availability.</small>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Payment Details -->
+                    <div id="step2-content" style="display:none;">
+                        <h6 class="fw-bold mb-3 text-primary">Select Payment Method</h6>
+                        <div class="mb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="payCC"
+                                    value="CREDIT_CARD" checked onchange="togglePaymentFields()">
+                                <label class="form-check-label" for="payCC">Credit/Debit Card</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="payUPI"
+                                    value="UPI" onchange="togglePaymentFields()">
+                                <label class="form-check-label" for="payUPI">UPI</label>
+                            </div>
+                        </div>
+
+                        <div id="cc-fields" class="payment-fields">
+                            <div class="mb-3">
+                                <label class="form-label">Card Number</label>
+                                <input type="text" class="form-control" id="cc_number"
+                                    placeholder="1234 5678 9101 1121">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Expiry (MM/YY)</label>
+                                    <input type="text" class="form-control" id="cc_expiry" placeholder="12/25">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">CVV</label>
+                                    <input type="password" class="form-control" id="cc_cvv" placeholder="123">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="upi-fields" class="payment-fields" style="display:none;">
+                            <div class="mb-3">
+                                <label class="form-label">UPI ID (VPA)</label>
+                                <input type="text" class="form-control" id="upi_id" placeholder="username@upi">
+                            </div>
+                        </div>
+
+                        <div class="mt-3 p-3 bg-light rounded shadow-sm border">
+                            <h5 class="fw-bold text-success mb-0">Total Amount: ₹<span id="finalTotalPrice">0</span>
+                            </h5>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Success Celebration -->
+                    <div id="success-content" style="display:none;" class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="bi bi-patch-check-fill text-success" style="font-size: 5rem;"></i>
+                        </div>
+                        <h2 class="fw-bold text-success mb-3">Hurrah!</h2>
+                        <h4 class="mb-4">Booking Successful!</h4>
+                        <p class="text-muted">Redirecting you to My Bookings in 3 seconds...</p>
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4" id="nextToPaymentBtn">Next: Payment</button>
+                    <button type="button" class="btn btn-outline-secondary" id="backToPassengersBtn"
+                        style="display:none;">Back</button>
+                    <button type="button" class="btn btn-success px-4" id="confirmPaymentBtn"
+                        style="display:none;">Confirm & Pay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                Hello, world! This is a toast message.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:9090/api';
+        const AUTH_HEADER = localStorage.getItem('auth');
+
+        // Redirect to login if no auth found
+        if (!AUTH_HEADER && !window.location.href.includes('index.html')) {
+            window.location.href = 'login.html';
+        }
+        const toastEl = document.getElementById('liveToast');
+        const toast = new bootstrap.Toast(toastEl);
+        const toastTitle = document.getElementById('toastTitle');
+        const toastMessage = document.getElementById('toastMessage');
+
+        function showToast(title, message, isSuccess) {
+            toastTitle.innerText = title;
+            toastMessage.innerText = message;
+            if (isSuccess) {
+                toastEl.classList.remove('text-bg-danger');
+                toastEl.classList.add('text-bg-success');
+            } else {
+                toastEl.classList.remove('text-bg-success');
+                toastEl.classList.add('text-bg-danger');
+            }
+            toast.show();
+        }
+
+        function showSection(section) {
+            document.getElementById('search-section').style.display = section === 'search' ? 'block' : 'none';
+            document.getElementById('bookings-section').style.display = section === 'bookings' ? 'block' : 'none';
+            document.getElementById('wallet-section').style.display = section === 'wallet' ? 'block' : 'none';
+
+            if (section === 'bookings') loadMyBookings(0);
+            if (section === 'wallet') loadWallet();
+        }
+
+        async function loadWallet() {
+            try {
+                // Load Balance
+                const balRes = await fetch(`${API_BASE}/user/wallet/balance`, {
+                    headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
+                });
+                const balData = await balRes.json();
+                document.getElementById('wallet-balance').innerText = '₹' + (balData.balance || 0).toFixed(2);
+
+                // Load Transactions
+                const txnRes = await fetch(`${API_BASE}/user/wallet/transactions`, {
+                    headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
+                });
+                const txns = await txnRes.json();
+                const tbody = document.getElementById('wallet-transactions');
+                tbody.innerHTML = txns.map(t => `
+                    <tr>
+                        <td>${new Date(t.transactionTime).toLocaleString()}</td>
+                        <td>${t.description}</td>
+                        <td><span class="badge ${t.type === 'CREDIT' ? 'bg-success' : 'bg-danger'}">${t.type}</span></td>
+                        <td class="${t.type === 'CREDIT' ? 'text-success' : 'text-danger'} fw-bold">
+                            ${t.type === 'CREDIT' ? '+' : '-'}₹${t.amount.toFixed(2)}
+                        </td>
+                    </tr>
+                `).join('');
+                if (txns.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No transactions found.</td></tr>';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        let selectedDate = new Date().toISOString().split('T')[0];
+        let startDateOffset = 0;
+
+        function updateDateBar() {
+            const container = document.getElementById('date-bar');
+            container.innerHTML = '';
+
+            const today = new Date();
+            for (let i = 0; i < 4; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + startDateOffset + i);
+                const dateStr = date.toISOString().split('T')[0];
+                const isActive = dateStr === selectedDate;
+
+                const label = i === 0 && startDateOffset === 0 ? 'Today' :
+                    date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+
+                const div = document.createElement('div');
+                div.className = `date-item flex-fill text-center p-2 rounded cursor-pointer ${isActive ? 'bg-primary text-white' : 'bg-white border text-dark'}`;
+                div.style.cursor = 'pointer';
+                div.innerHTML = `<small class="fw-bold">${label}</small>`;
+                div.onclick = () => selectDate(dateStr);
+                container.appendChild(div);
+            }
+            document.getElementById('directDatePicker').value = selectedDate;
+        }
+
+        function navigateDates(direction) {
+            startDateOffset += direction;
+            updateDateBar();
+        }
+
+        function selectDate(date) {
+            selectedDate = date;
+            updateDateBar();
+            performSearch();
+        }
+
+        function jumpToDate(date) {
+            selectedDate = date;
+            // Adjust offset to show the jumped date if needed, or just let it be
+            updateDateBar();
+            performSearch();
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            performSearch();
+        });
+
+        async function performSearch() {
+            const origin = document.getElementById('origin').value;
+            const dest = document.getElementById('destination').value;
+            if (!origin || !dest) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/public/flights/search?origin=${origin}&destination=${dest}&date=${selectedDate}`);
+                const flights = await res.json();
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '';
+
+                if (flights.length === 0) {
+                    resultsDiv.innerHTML = '<div class="col-12"><div class="alert alert-warning">No scheduled flights found for this route on the selected date.</div></div>';
+                    return;
+                }
+
+                // Add search dropdown population if not already there, but user mentioned city codes
+                // Typically search inputs on user dashboard are text for now, but let's check if we can improve
+
+                flights.forEach(f => {
+                    resultsDiv.innerHTML += `
+                        <div class="col-md-6 mb-3">
+                            <div class="card shadow-sm border-0 h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title text-primary">${f.airlineName}</h5>
+                                        <div class="text-end">
+                                            <span class="badge bg-primary d-block mb-1">E: ₹${f.economyPrice}</span>
+                                            <span class="badge bg-info d-block">B: ₹${f.businessPrice}</span>
+                                        </div>
+                                    </div>
+                                    <h6 class="card-subtitle mb-2 text-muted">${f.flightNumber}</h6>
+                                    <div class="d-flex justify-content-between mt-3">
+                                        <div>
+                                            <small class="text-muted">From</small>
+                                            <p class="fw-bold mb-0">${f.origin}</p>
+                                            <small>${f.departureTime ? new Date(f.departureTime).toLocaleString() : 'TBA'}</small>
+                                        </div>
+                                        <div class="text-center align-self-center">➝</div>
+                                        <div class="text-end">
+                                            <small class="text-muted">To</small>
+                                            <p class="fw-bold mb-0">${f.destination}</p>
+                                            <small>${f.arrivalTime ? new Date(f.arrivalTime).toLocaleString() : 'TBA'}</small>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2 mt-3">
+                                        <div class="col">
+                                            <button class="btn btn-outline-primary btn-sm w-100" 
+                                                onclick="bookFlight(${f.id}, 'ECONOMY', ${f.economyPrice})"
+                                                ${f.economySeatsAvailable <= 0 ? 'disabled' : ''}>
+                                                Book Economy (${f.economySeatsAvailable} left)
+                                            </button>
+                                        </div>
+                                        <div class="col">
+                                            <button class="btn btn-outline-info btn-sm w-100" 
+                                                onclick="bookFlight(${f.id}, 'BUSINESS', ${f.businessPrice})"
+                                                ${f.businessSeatsAvailable <= 0 ? 'disabled' : ''}>
+                                                Book Business (${f.businessSeatsAvailable} left)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        let currentBookingInfo = null;
+
+        async function bookFlight(flightId, flightClass, price) {
+            currentBookingInfo = { flightId, flightClass, basePrice: price };
+            // Reset passenger container
+            const container = document.getElementById('passenger-container');
+            container.innerHTML = `
+                <div class="passenger-form border rounded p-3 mb-3 bg-white shadow-sm position-relative">
+                    <h6 class="fw-bold mb-3 text-primary">Passenger 1</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control p_name" placeholder="John Doe" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-control p_age" placeholder="25" required min="1">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Gender</label>
+                            <select class="form-select p_gender" required>
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Re-bind the add passenger button or just let the global function work
+            // But let's check if the modal needs a fresh instance
+            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('passengerModal'));
+            modal.show();
+
+            // UI State Reset
+            document.getElementById('step1-content').style.display = 'block';
+            document.getElementById('step2-content').style.display = 'none';
+            document.getElementById('nextToPaymentBtn').style.display = 'block';
+            document.getElementById('confirmPaymentBtn').style.display = 'none';
+            document.getElementById('backToPassengersBtn').style.display = 'none';
+            document.getElementById('step1-indicator').className = 'badge rounded-pill bg-primary px-3 py-2 me-2';
+            document.getElementById('step2-indicator').className = 'badge rounded-pill bg-light text-dark border px-3 py-2';
+        }
+
+        function togglePaymentFields() {
+            const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+            document.getElementById('cc-fields').style.display = method === 'CREDIT_CARD' ? 'block' : 'none';
+            document.getElementById('upi-fields').style.display = method === 'UPI' ? 'block' : 'none';
+        }
+
+        function addPassengerField() {
+            const container = document.getElementById('passenger-container');
+            const count = container.querySelectorAll('.passenger-form').length + 1;
+            const div = document.createElement('div');
+            div.className = 'passenger-form border rounded p-3 mb-3 bg-white shadow-sm position-relative';
+            div.innerHTML = `
+                <h6 class="fw-bold mb-3 text-primary">Passenger ${count}</h6>
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-2" style="font-size: 0.8rem;" onclick="this.parentElement.remove()"></button>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control p_name" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Age</label>
+                        <input type="number" class="form-control p_age" required min="1">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Gender</label>
+                        <select class="form-select p_gender" required>
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        document.getElementById('addPassengerBtn').addEventListener('click', addPassengerField);
+
+        document.getElementById('nextToPaymentBtn').addEventListener('click', () => {
+            const forms = document.querySelectorAll('.passenger-form');
+            if (forms.length === 0) return alert('At least one passenger is required.');
+
+            let isValid = true;
+            forms.forEach(form => {
+                if (!form.querySelector('.p_name').value || !form.querySelector('.p_age').value || !form.querySelector('.p_gender').value) {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) return alert('Please fill all passenger details.');
+
+            // Calculate Price
+            const totalPrice = currentBookingInfo.basePrice * forms.length;
+
+            document.getElementById('finalTotalPrice').innerText = totalPrice;
+            currentBookingInfo.totalPrice = totalPrice;
+
+            // Switch Steps
+            document.getElementById('step1-content').style.display = 'none';
+            document.getElementById('step2-content').style.display = 'block';
+            document.getElementById('nextToPaymentBtn').style.display = 'none';
+            document.getElementById('confirmPaymentBtn').style.display = 'block';
+            document.getElementById('backToPassengersBtn').style.display = 'block';
+            document.getElementById('step1-indicator').className = 'badge rounded-pill bg-light text-dark border px-3 py-2 me-2';
+            document.getElementById('step2-indicator').className = 'badge rounded-pill bg-primary px-3 py-2';
+        });
+
+        document.getElementById('backToPassengersBtn').addEventListener('click', () => {
+            document.getElementById('step1-content').style.display = 'block';
+            document.getElementById('step2-content').style.display = 'none';
+            document.getElementById('nextToPaymentBtn').style.display = 'block';
+            document.getElementById('confirmPaymentBtn').style.display = 'none';
+            document.getElementById('backToPassengersBtn').style.display = 'none';
+            document.getElementById('step1-indicator').className = 'badge rounded-pill bg-primary px-3 py-2 me-2';
+            document.getElementById('step2-indicator').className = 'badge rounded-pill bg-light text-dark border px-3 py-2';
+        });
+
+        document.getElementById('confirmPaymentBtn').addEventListener('click', async () => {
+            const passengers = [];
+            const forms = document.querySelectorAll('.passenger-form');
+            forms.forEach(form => {
+                passengers.push({
+                    fullName: form.querySelector('.p_name').value,
+                    age: parseInt(form.querySelector('.p_age').value),
+                    gender: form.querySelector('.p_gender').value
+                });
+            });
+
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            // Basic Simulation of Payment Gateway
+            if (paymentMethod === 'CREDIT_CARD') {
+                const num = document.getElementById('cc_number').value;
+                const exp = document.getElementById('cc_expiry').value;
+                const cvv = document.getElementById('cc_cvv').value;
+                if (!num || !exp || !cvv) return alert('Please enter card details');
+            } else {
+                const upi = document.getElementById('upi_id').value;
+                if (!upi) return alert('Please enter UPI ID');
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/user/bookings/book`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + AUTH_HEADER
+                    },
+                    body: JSON.stringify({
+                        flightId: currentBookingInfo.flightId,
+                        flightClass: currentBookingInfo.flightClass,
+                        passengers: passengers,
+                        paymentMethod: paymentMethod,
+                        totalPrice: currentBookingInfo.totalPrice
+                    })
+                });
+
+                if (res.ok) {
+                    // Show Success Content
+                    document.getElementById('step2-content').style.display = 'none';
+                    document.getElementById('step3-indicator')?.remove(); // Cleanup indicator if any
+                    document.getElementById('success-content').style.display = 'block';
+
+                    // Hide Footer Buttons
+                    document.querySelector('.modal-footer').style.display = 'none';
+
+                    // Trigger Confetti
+                    const duration = 3 * 1000;
+                    const end = Date.now() + duration;
+
+                    (function frame() {
+                        confetti({
+                            particleCount: 7,
+                            angle: 60,
+                            spread: 55,
+                            origin: { x: 0 },
+                            colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff']
+                        });
+                        confetti({
+                            particleCount: 7,
+                            angle: 120,
+                            spread: 55,
+                            origin: { x: 1 },
+                            colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff']
+                        });
+
+                        if (Date.now() < end) {
+                            requestAnimationFrame(frame);
+                        }
+                    }());
+
+                    // Delayed Navigation
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('passengerModal'));
+                        modal.hide();
+                        // Reset modal for next use
+                        document.querySelector('.modal-footer').style.display = 'flex';
+                        showSection('bookings');
+                    }, 3000);
+                } else {
+                    const msg = await res.text();
+                    showToast('Error', msg || 'Processing failed.', false);
+                }
+            } catch (err) {
+                showToast('Error', 'Gateway connection error.', false);
+            }
+        });
+
+        let bookingPage = 0;
+        const bookingSize = 5;
+
+        async function loadMyBookings(page = 0) {
+            bookingPage = page;
+            try {
+                const res = await fetch(`${API_BASE}/user/bookings/my?page=${page}&size=${bookingSize}`, {
+                    headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
+                });
+                const data = await res.json();
+                const bookings = data.content || [];
+                const totalPages = data.totalPages || 0;
+
+                const bookingsList = document.getElementById('bookings-list');
+                bookingsList.innerHTML = '';
+
+                if (bookings.length === 0) {
+                    bookingsList.innerHTML = `
+                        <div class="col-12 mt-3">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body text-center p-5">
+                                    <p class="text-muted">You haven't booked any flights yet.</p>
+                                    <button class="btn btn-primary" onclick="showSection('search')">Book a Flight</button>
+                                </div>
+                            </div>
+                        </div>`;
+                    document.getElementById('booking-pagination').innerHTML = '';
+                    return;
+                }
+
+                // Pagination Buttons
+                let pagHtml = `
+                    <li class="page-item ${page === 0 ? 'disabled' : ''}">
+                        <a class="page-item page-link" href="#" onclick="loadMyBookings(${page - 1})">Previous</a>
+                    </li>
+                `;
+                for (let i = 0; i < totalPages; i++) {
+                    pagHtml += `
+                        <li class="page-item ${i === page ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="loadMyBookings(${i})">${i + 1}</a>
+                        </li>
+                    `;
+                }
+                pagHtml += `
+                    <li class="page-item ${page === totalPages - 1 || totalPages === 0 ? 'disabled' : ''}">
+                        <a class="page-item page-link" href="#" onclick="loadMyBookings(${page + 1})">Next</a>
+                    </li>
+                `;
+                document.getElementById('booking-pagination').innerHTML = pagHtml;
+
+                bookings.forEach(b => {
+                    const f = b.flight;
+                    if (!f) {
+                        bookingsList.innerHTML += `
+                            <div class="col-md-12 mb-3">
+                                <div class="card shadow-sm border-0 border-start border-danger border-4">
+                                    <div class="card-body">
+                                        <h5 class="text-danger">Flight Details Unavailable</h5>
+                                        <p class="mb-0">Booking Ref: #${b.id} | Class: ${b.flightClass}</p>
+                                    </div>
+                                </div>
+                            </div>`;
+                        return;
+                    }
+                    const price = b.flightClass === 'BUSINESS' ? f.businessPrice : f.economyPrice;
+                    bookingsList.innerHTML += `
+                        <div class="col-md-12 mb-3">
+                            <div class="card shadow-sm border-0 border-start border-primary border-4">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-1 text-primary">${f.airlineName} <small class="text-muted">(${f.flightNumber})</small></h5>
+                                        <div class="mb-2"><small class="badge bg-light text-dark border">Booked by: ${b.user ? b.user.username : 'You'}</small></div>
+                                        <p class="mb-0 fw-bold">${f.origin} ➝ ${f.destination} <span class="badge bg-secondary ms-2">${b.flightClass}</span></p>
+                                        <small class="text-muted d-block">Departure: ${f.departureTime ? new Date(f.departureTime).toLocaleString() : 'TBA'}</small>
+                                        <div class="mt-2 text-dark">
+                                            <small class="fw-bold text-muted">Passengers:</small>
+                                            <p class="mb-0 small">${b.passengers ? b.passengers.map(p => `${p.fullName} (${p.age}, ${p.gender})`).join(', ') : 'No passenger details'}</p>
+                                        </div>
+                                        <div class="mt-1">
+                                            <span class="badge bg-light text-dark border"><small>${b.paymentMethod || 'CASH'} | ${b.transactionId || 'N/A'}</small></span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-${b.status === 'CONFIRMED' ? 'success' : 'danger'} mb-2">${b.status}</span>
+                                        <p class="mb-0 fw-bold text-success">₹${b.totalPrice || (price * (b.passengers ? b.passengers.length : 1))}</p>
+                                        <small class="text-muted">Ref: #${b.id}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        // Fetch cities for search if they were dropdowns (they are currently text inputs)
+        // Let's convert them to dropdowns for better UX as per the city code requirement
+        async function loadSearchCities() {
+            try {
+                const res = await fetch(`${API_BASE}/public/cities`);
+                const cities = await res.json();
+                const cityOptions = cities.map(c => `<option value="${c.name}">${c.name} (${c.code})</option>`).join('');
+                document.getElementById('origin').outerHTML = `<select id="origin" class="form-select" required><option value="">From</option>${cityOptions}</select>`;
+                document.getElementById('destination').outerHTML = `<select id="destination" class="form-select" required><option value="">To</option>${cityOptions}</select>`;
+            } catch (err) { console.error(err); }
+        }
+        loadSearchCities();
+        updateDateBar();
+    </script>
+</body>
+
+</html>
