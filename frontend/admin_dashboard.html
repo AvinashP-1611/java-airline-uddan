@@ -3,376 +3,414 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard - Udaan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Command Center - Udaan</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
+        :root {
+            --sidebar-width: 280px;
+            --primary: #3b82f6;
+            --dark: #0f172a;
+            --sidebar-bg: #1e293b;
+            --bg-body: #f1f5f9;
+        }
+
         body {
-            display: flex;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-body);
+            color: #334155;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        #sidebar {
+            width: var(--sidebar-width);
             height: 100vh;
-            overflow: hidden;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: var(--sidebar-bg);
+            color: white;
+            transition: all 0.3s;
+            z-index: 1000;
+            padding: 2rem 1rem;
         }
 
-        .sidebar {
-            width: 250px;
-            background: #343a40;
-            color: white;
-            padding: 20px;
+        .nav-link-admin {
+            color: #94a3b8;
+            padding: 0.875rem 1.25rem;
+            border-radius: 12px;
             display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar a {
-            color: white;
+            align-items: center;
             text-decoration: none;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            cursor: pointer;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            font-weight: 500;
         }
 
-        .sidebar a:hover,
-        .sidebar a.active {
-            background: #495057;
+        .nav-link-admin:hover,
+        .nav-link-admin.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
         }
 
-        .content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f8f9fa;
+        .nav-link-admin i {
+            font-size: 1.25rem;
+            margin-right: 1rem;
+        }
+
+        /* Main Content */
+        #main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        /* Cards and Stats */
+        .admin-card {
+            background: white;
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .stat-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Tables */
+        .table thead {
+            background: #f8fafc;
+        }
+
+        .table th {
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            border: none;
+            padding: 1rem;
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #f1f5f9;
+        }
+
+        /* Buttons */
+        .btn-admin {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.625rem 1.25rem;
+        }
+
+        /* Custom Badges */
+        .pill-badge {
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Media Queries */
+        @media (max-width: 991.98px) {
+            #sidebar {
+                left: -var(--sidebar-width);
+            }
+
+            #sidebar.show {
+                left: 0;
+            }
+
+            #main-content {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="sidebar">
-        <h3 class="fw-bold mb-4">Udaan Admin</h3>
-        <a id="link-flights" class="active" onclick="showSection('flights')">Flights</a>
-        <a id="link-airlines" onclick="showSection('airlines')">Airlines</a>
-        <a id="link-cities" onclick="showSection('cities')">Cities</a>
-        <a id="link-users" onclick="showSection('users')">Users</a>
-        <a id="link-bookings" onclick="showSection('bookings')">Bookings</a>
-        <a href="index.html" class="mt-auto text-danger">Logout</a>
-    </div>
+    <!-- Toggle Sidebar Button (Mobile) -->
+    <button class="btn btn-primary d-lg-none position-fixed bottom-0 end-0 m-4 z-3 rounded-circle"
+        onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
 
-    <div class="content">
-
-        <!-- Flights Section -->
-        <div id="flights-section">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Flight Management</h2>
-                <button class="btn btn-primary" onclick="openFlightModal()">Add Flight</button>
-            </div>
-            <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <input type="text" id="flightSearchAirline" class="form-control" placeholder="Filter Airline..."
-                        onkeyup="filterFlights()">
-                </div>
-                <div class="col-md-3">
-                    <input type="text" id="flightSearchOrigin" class="form-control" placeholder="Filter Origin..."
-                        onkeyup="filterFlights()">
-                </div>
-                <div class="col-md-3">
-                    <input type="text" id="flightSearchDest" class="form-control" placeholder="Filter Destination..."
-                        onkeyup="filterFlights()">
-                </div>
-            </div>
-
-            <table class="table table-striped bg-white shadow-sm rounded">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Flight No</th>
-                        <th>Airline</th>
-                        <th>Origin</th>
-                        <th>Dest</th>
-                        <th>Economy Details</th>
-                        <th>Business Details</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="flightsTableBody"></tbody>
-            </table>
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="mb-5 px-3">
+            <h4 class="fw-bold mb-0 d-flex align-items-center">
+                <span class="text-primary me-2">✈️</span> Udaan <small class="ms-2 fs-6 opacity-50">Admin</small>
+            </h4>
         </div>
 
-        <!-- Airlines Section -->
-        <div id="airlines-section" style="display:none;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Airline Management</h2>
-                <button class="btn btn-primary" onclick="openAirlineModal()">Add Airline</button>
+        <div class="nav flex-column">
+            <a href="#" class="nav-link-admin active" onclick="showSection('flights')">
+                <i class="bi bi-airplane"></i> Flights
+            </a>
+            <a href="#" class="nav-link-admin" onclick="showSection('airlines')">
+                <i class="bi bi-building"></i> Airlines
+            </a>
+            <a href="#" class="nav-link-admin" onclick="showSection('cities')">
+                <i class="bi bi-geo-alt"></i> Cities
+            </a>
+            <a href="#" class="nav-link-admin" onclick="showSection('users')">
+                <i class="bi bi-people"></i> Users
+            </a>
+            <a href="#" class="nav-link-admin" onclick="showSection('bookings')">
+                <i class="bi bi-ticket-perforated"></i> Bookings
+            </a>
+            <div class="mt-auto pt-5">
+                <hr class="opacity-10">
+                <a href="index.html" class="nav-link-admin text-danger" onclick="localStorage.clear()">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
             </div>
-            <table class="table table-striped bg-white shadow-sm rounded">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="airlinesTableBody"></tbody>
-            </table>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Header -->
+        <header class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="fw-bold mb-1" id="section-title">Flight Management</h2>
+                <p class="text-muted small mb-0" id="section-desc">Monitor and manage all flight operations</p>
+            </div>
+            <div id="action-header">
+                <!-- Dynamic Action Button -->
+            </div>
+        </header>
+
+        <!-- Stats Row -->
+        <div class="row g-4 mb-5" id="stats-row">
+            <!-- Dynamic Stats injected by JS -->
         </div>
 
-        <!-- Cities Section -->
-        <div id="cities-section" style="display:none;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>City Management</h2>
-                <button class="btn btn-primary" onclick="openCityModal()">Add City</button>
-            </div>
-            <table class="table table-striped bg-white shadow-sm rounded">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Code</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="citiesTableBody"></tbody>
-            </table>
-        </div>
-
-        <!-- Users Section -->
-        <div id="users-section" style="display:none;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>User Management</h2>
-                <button class="btn btn-primary" onclick="openUserModal()">Add User</button>
-            </div>
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <input type="text" id="userSearchName" class="form-control" placeholder="Filter by Name..."
-                        onkeyup="filterUsers()">
+        <!-- Section Containers -->
+        <div id="flights-section" class="section-container">
+            <div class="admin-card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Flight No</th>
+                                <th>Airline</th>
+                                <th>Route</th>
+                                <th>Capacity</th>
+                                <th>Prices (E/B)</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flightsTableBody"></tbody>
+                    </table>
                 </div>
-                <div class="col-md-4">
-                    <select id="userRoleFilter" class="form-select" onchange="filterUsers()">
-                        <option value="">All Roles</option>
-                        <option value="USER">USER</option>
-                        <option value="AIRLINE">AIRLINE</option>
-                    </select>
-                </div>
-            </div>
-
-            <table class="table table-striped bg-white shadow-sm rounded">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Full Name</th>
-                        <th>Role</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody"></tbody>
-            </table>
-        </div>
-
-        <!-- Bookings Section -->
-        <div id="bookings-section" style="display:none;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">All Bookings</h2>
-            </div>
-            <table class="table table-striped bg-white shadow-sm rounded">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Ref ID</th>
-                        <th>User</th>
-                        <th>Flight</th>
-                        <th>Class</th>
-                        <th>Passengers</th>
-                        <th>Payment</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="bookingsTableBody"></tbody>
-            </table>
-
-            <!-- Booking Pagination -->
-            <div class="d-flex justify-content-center mt-4">
-                <nav aria-label="Booking pagination">
-                    <ul class="pagination pagination-sm" id="booking-pagination">
-                        <!-- Pagination buttons -->
-                    </ul>
-                </nav>
             </div>
         </div>
 
-    </div>
-
-    <!-- Flight Modal -->
-    <div class="modal fade" id="addFlightModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Flight</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addFlightForm">
-                        <div class="mb-2"><label>Flight Number</label><input type="text" id="f_no" class="form-control"
-                                readonly></div>
-                        <div class="mb-2">
-                            <label>Airline</label>
-                            <select id="f_airline" class="form-select" required>
-                                <option value="">Select Airline</option>
-                            </select>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <label>Origin</label>
-                                <select id="f_origin" class="form-select" required onchange="validatePositions()">
-                                    <option value="">Select Origin</option>
-                                </select>
-                            </div>
-                            <div class="col">
-                                <label>Destination</label>
-                                <select id="f_dest" class="form-select" required onchange="validatePositions()">
-                                    <option value="">Select Destination</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col text-center"><small class="fw-bold">Economy Class</small></div>
-                            <div class="col text-center"><small class="fw-bold">Business Class</small></div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <input type="number" id="f_economy_price" class="form-control"
-                                    placeholder="Price (₹3000 - ₹10000)" required min="3000" max="10000">
-                            </div>
-                            <div class="col">
-                                <input type="number" id="f_business_price" class="form-control"
-                                    placeholder="Price (₹5000 - ₹40000)" required min="5000" max="40000">
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col">
-                                <label><small class="fw-bold text-muted text-uppercase">Economy Seats</small></label>
-                                <input type="number" id="f_economy_seats" class="form-control" required
-                                    placeholder="Total">
-                            </div>
-                            <div class="col">
-                                <label><small class="fw-bold text-muted text-uppercase">Business Seats</small></label>
-                                <input type="number" id="f_business_seats" class="form-control" required
-                                    placeholder="Total">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="submitFlight()">Save Flight</button>
+        <div id="airlines-section" class="section-container" style="display:none;">
+            <div class="admin-card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Airline Name</th>
+                                <th>Owner (User)</th>
+                                <th>Total Flights</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="airlinesTableBody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Airline Modal -->
-    <div class="modal fade" id="airlineModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Airline Management</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="airline_id">
-                    <div class="mb-2"><label>Airline Name</label><input type="text" id="airline_name"
-                            class="form-control"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="saveAirline()">Save</button>
+        <div id="cities-section" class="section-container" style="display:none;">
+            <div class="admin-card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>City Name</th>
+                                <th>Code</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="citiesTableBody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- City Modal -->
-    <div class="modal fade" id="cityModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">City Management</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div id="users-section" class="section-container" style="display:none;">
+            <div class="admin-card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" id="city_id">
-                    <div class="mb-2"><label>City Name</label><input type="text" id="city_name" class="form-control">
+            </div>
+        </div>
+
+        <div id="bookings-section" class="section-container" style="display:none;">
+            <div class="admin-card">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Flight</th>
+                                <th>Route</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody"></tbody>
+                    </table>
+                </div>
+                <!-- Global Booking Pagination -->
+                <div class="p-3 bg-light border-top">
+                    <nav aria-label="Booking pagination">
+                        <ul class="pagination pagination-sm justify-content-center mb-0" id="booking-pagination"></ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals (Generic Container) -->
+    <div id="modal-container">
+        <!-- Add Flight Modal -->
+        <div class="modal fade" id="addFlightModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content shadow-lg">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold">Register New Flight</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="mb-2"><label>City Code</label><input type="text" id="city_code" class="form-control"
-                            placeholder="e.g. CCU"></div>
+                    <div class="modal-body p-4">
+                        <form id="addFlightForm" class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Flight Number</label>
+                                <input type="text" id="f_num" class="form-control rounded-3" placeholder="UK-123"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Airline</label>
+                                <select id="f_airline_select" class="form-select rounded-3" required></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Origin City</label>
+                                <select id="f_origin_select" class="form-select rounded-3" required></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Destination City</label>
+                                <select id="f_dest_select" class="form-select rounded-3" required></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Economy Seats</label>
+                                <input type="number" id="f_eco_total" class="form-control rounded-3" value="180"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Business Seats</label>
+                                <input type="number" id="f_bus_total" class="form-control rounded-3" value="20"
+                                    required>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="btn btn-primary w-100 btn-admin">Create Flight</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="saveCity()">Save</button>
+            </div>
+        </div>
+
+        <!-- Add Airline Modal -->
+        <div class="modal fade" id="addAirlineModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title fw-bold">Create Airline Account</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form id="addAirlineForm">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Airline Name</label>
+                                <input type="text" id="a_name" class="form-control rounded-3" placeholder="e.g. Vistara"
+                                    required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold">Assign to User (Username)</label>
+                                <input type="text" id="a_user" class="form-control rounded-3"
+                                    placeholder="Enter owner's username" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 btn-admin">Create Airline</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add City Modal -->
+        <div class="modal fade" id="addCityModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title fw-bold">Add New Destination</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form id="addCityForm">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">City Name</label>
+                                <input type="text" id="c_name" class="form-control rounded-3" placeholder="New Delhi"
+                                    required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold">IATA Code</label>
+                                <input type="text" id="c_code" class="form-control rounded-3" placeholder="DEL"
+                                    maxlength="3" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 btn-admin">Add City</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Price Edit Modal -->
-    <div class="modal fade" id="priceModal" tabindex="-1">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Prices</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="p_flight_id">
-                    <div class="mb-2"><label>Economy Price</label><input type="number" id="p_economy"
-                            class="form-control"></div>
-                    <div class="mb-2"><label>Business Price</label><input type="number" id="p_business"
-                            class="form-control"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="updateFlightPrices()">Update</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- User Modal -->
-    <div class="modal fade" id="userModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Admin User Management</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="userForm">
-                        <input type="hidden" id="u_id">
-                        <div class="mb-2"><label>Username</label><input type="text" id="u_username" class="form-control"
-                                required></div>
-                        <div class="mb-2"><label id="pw_label">Password</label><input type="password" id="u_password"
-                                class="form-control"></div>
-                        <div class="mb-2"><label>Full Name</label><input type="text" id="u_fullname"
-                                class="form-control" required></div>
-                        <div class="mb-2"><label>Email</label><input type="email" id="u_email" class="form-control"
-                                required></div>
-                        <div class="mb-2"><label>Phone</label><input type="text" id="u_phone" class="form-control">
-                        </div>
-                        <div class="mb-2">
-                            <label>Role</label>
-                            <select id="u_role" class="form-select" onchange="toggleAirlineField()" required>
-                                <option value="USER">USER</option>
-                                <option value="AIRLINE">AIRLINE</option>
-                            </select>
-                        </div>
-                        <div class="mb-2" id="airline_field" style="display:none;">
-                            <label>Airline Name</label>
-                            <select id="u_airline" class="form-select">
-                                <option value="">Select Airline</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="saveAdminUser()">Save User</button>
-                </div>
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="adminToast" class="toast align-items-center border-0 text-white" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMsg"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
     </div>
@@ -381,226 +419,196 @@
     <script>
         const API_BASE = 'http://localhost:9090/api';
         const AUTH_HEADER = localStorage.getItem('auth');
-
         if (!AUTH_HEADER) window.location.href = 'login.html';
 
-        function showSection(section) {
-            ['flights', 'airlines', 'cities', 'users', 'bookings'].forEach(s => {
-                const el = document.getElementById(`${s}-section`);
-                if (el) el.style.display = (s === section) ? 'block' : 'none';
-
-                const link = document.getElementById(`link-${s}`);
-                if (link) link.classList.toggle('active', s === section);
-            });
-            if (section === 'flights') loadFlights();
-            if (section === 'airlines') loadAirlines();
-            if (section === 'cities') loadCities();
-            if (section === 'users') loadUsers();
-            if (section === 'bookings') loadBookings(0);
+        const toast = new bootstrap.Toast(document.getElementById('adminToast'));
+        function showMsg(m, success = true) {
+            document.getElementById('toastMsg').innerText = m;
+            document.getElementById('adminToast').className = `toast align-items-center border-0 text-white ${success ? 'bg-success' : 'bg-danger'}`;
+            toast.show();
         }
 
-        // --- BOOKINGS ---
-        let bookingPage = 0;
-        const bookingSize = 10;
+        // Section Navigation
+        function showSection(id) {
+            document.querySelectorAll('.section-container').forEach(s => s.style.display = 'none');
+            document.getElementById(id + '-section').style.display = 'block';
 
-        async function loadBookings(page = 0) {
-            bookingPage = page;
-            const res = await fetch(`${API_BASE}/admin/bookings?page=${page}&size=${bookingSize}`, {
-                headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
-            });
-            const data = await res.json();
-            const bookings = data.content || [];
-            const totalPages = data.totalPages || 0;
+            document.querySelectorAll('.nav-link-admin').forEach(l => l.classList.remove('active'));
+            event?.currentTarget?.classList?.add('active');
 
-            renderBookings(bookings);
-            renderBookingPagination(totalPages, page);
+            const titles = {
+                flights: ['Flight Management', 'Monitor and manage all flight operations'],
+                airlines: ['Airline Management', 'Manage airline partners and ownership'],
+                cities: ['City Management', 'Configure destinations and airport codes'],
+                users: ['User Management', 'View and manage system users'],
+                bookings: ['Booking Overview', 'Consolidated view of all transaction records']
+            };
+
+            document.getElementById('section-title').innerText = titles[id][0];
+            document.getElementById('section-desc').innerText = titles[id][1];
+            updateActionHeader(id);
+            refreshData(id);
+        }
+
+        function updateActionHeader(id) {
+            const container = document.getElementById('action-header');
+            container.innerHTML = '';
+            if (id === 'flights') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addFlightModal"><i class="bi bi-plus-lg me-2"></i>New Flight</button>';
+            if (id === 'airlines') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addAirlineModal"><i class="bi bi-plus-lg me-2"></i>Add Airline</button>';
+            if (id === 'cities') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addCityModal"><i class="bi bi-plus-lg me-2"></i>Add City</button>';
+        }
+
+        function refreshData(id) {
+            if (id === 'flights') loadFlights();
+            if (id === 'airlines') loadAirlines();
+            if (id === 'cities') loadCities();
+            if (id === 'users') loadUsers();
+            if (id === 'bookings') loadAllBookings();
+        }
+
+        // Data Loaders
+        async function loadFlights() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/flights`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
+                const data = await res.json();
+                const tbody = document.getElementById('flightsTableBody');
+                tbody.innerHTML = data.map(f => `
+                    <tr>
+                        <td><div class="fw-bold">${f.flightNumber}</div></td>
+                        <td><span class="pill-badge bg-primary bg-opacity-10 text-primary">${f.airlineName}</span></td>
+                        <td>${f.origin.split(' ')[0]} ➝ ${f.destination.split(' ')[0]}</td>
+                        <td>
+                            <div class="small text-muted">E: ${f.economySeatsTotal} | B: ${f.businessSeatsTotal}</div>
+                        </td>
+                        <td>
+                            <div class="fw-bold">₹${f.economyPrice} / ₹${f.businessPrice}</div>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-light border-0" onclick="deleteItem('flights', ${f.id})"><i class="bi bi-trash text-danger"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+                updateStats('flights', data.length);
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadAirlines() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/airlines`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
+                const data = await res.json();
+                document.getElementById('airlinesTableBody').innerHTML = data.map(a => `
+                    <tr>
+                        <td class="fw-bold">${a.name}</td>
+                        <td><span class="text-muted"><i class="bi bi-person-circle me-1"></i>${a.ownerUsername}</span></td>
+                        <td>${a.flights ? a.flights.length : 0}</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-light border-0" onclick="deleteItem('airlines', ${a.id})"><i class="bi bi-trash text-danger"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+                updateStats('airlines', data.length);
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadCities() {
+            try {
+                const res = await fetch(`${API_BASE}/public/cities`);
+                const data = await res.json();
+                document.getElementById('citiesTableBody').innerHTML = data.map(c => `
+                    <tr>
+                        <td class="fw-bold">${c.name}</td>
+                        <td><code class="bg-light px-2 rounded-2">${c.code}</code></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-light border-0" onclick="deleteItem('cities', ${c.id})"><i class="bi bi-trash text-danger"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+                updateStats('cities', data.length);
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/users`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
+                const data = await res.json();
+                document.getElementById('usersTableBody').innerHTML = data.map(u => `
+                    <tr>
+                        <td class="fw-bold">${u.username}</td>
+                        <td><span class="pill-badge ${u.role === 'ADMIN' ? 'bg-danger' : (u.role === 'AIRLINE' ? 'bg-warning text-dark' : 'bg-success')} bg-opacity-10">${u.role}</span></td>
+                        <td>${u.email || 'N/A'}</td>
+                        <td>${u.phone || 'N/A'}</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-light border-0" onclick="deleteItem('users', ${u.id})"><i class="bi bi-trash text-danger"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+                updateStats('users', data.length);
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadAllBookings(page = 0) {
+            try {
+                const res = await fetch(`${API_BASE}/admin/bookings?page=${page}&size=10`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
+                const data = await res.json();
+                document.getElementById('bookingsTableBody').innerHTML = data.content.map(b => `
+                    <tr>
+                        <td class="font-monospace small">#${b.id}</td>
+                        <td>${b.user ? b.user.username : 'N/A'}</td>
+                        <td><span class="badge bg-light text-dark border">${b.flight ? b.flight.flightNumber : 'N/A'}</span></td>
+                        <td class="small">${b.flight ? b.flight.origin.split(' ')[0] + ' ➝ ' + b.flight.destination.split(' ')[0] : 'N/A'}</td>
+                        <td class="fw-bold text-success">₹${(b.totalPrice || 0).toLocaleString()}</td>
+                        <td><span class="pill-badge bg-${b.status === 'CONFIRMED' ? 'success' : 'danger'} bg-opacity-10 text-${b.status === 'CONFIRMED' ? 'success' : 'danger'}">${b.status}</span></td>
+                    </tr>
+                `).join('');
+                renderBookingPagination(data.totalPages, page);
+                updateStats('bookings', data.totalElements);
+            } catch (err) { console.error(err); }
         }
 
         function renderBookingPagination(totalPages, currentPage) {
             const pag = document.getElementById('booking-pagination');
-            if (!pag) return;
-
-            let html = `
-                <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" onclick="loadBookings(${currentPage - 1})">Previous</a>
-                </li>
-            `;
+            let html = `<li class="page-item ${currentPage === 0 ? 'disabled' : ''}"><a class="page-link border-0" href="#" onclick="loadAllBookings(${currentPage - 1})">Prev</a></li>`;
             for (let i = 0; i < totalPages; i++) {
-                html += `
-                    <li class="page-item ${i === currentPage ? 'active' : ''}">
-                        <a class="page-link" href="#" onclick="loadBookings(${i})">${i + 1}</a>
-                    </li>
-                `;
+                html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link shadow-none" href="#" onclick="loadAllBookings(${i})">${i + 1}</a></li>`;
             }
-            html += `
-                <li class="page-item ${currentPage === totalPages - 1 || totalPages === 0 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" onclick="loadBookings(${currentPage + 1})">Next</a>
-                </li>
-            `;
+            html += `<li class="page-item ${currentPage === totalPages - 1 || totalPages === 0 ? 'disabled' : ''}"><a class="page-link border-0" href="#" onclick="loadAllBookings(${currentPage + 1})">Next</a></li>`;
             pag.innerHTML = html;
         }
 
-        function renderBookings(bookings) {
-            const tbody = document.getElementById('bookingsTableBody');
-            tbody.innerHTML = bookings.map(b => `
-                <tr>
-                    <td>#${b.id}</td>
-                    <td>
-                        <div class="fw-bold">${b.user ? b.user.username : 'N/A'}</div>
-                        <small class="text-muted d-block">${b.user ? b.user.email : ''}</small>
-                        <small class="text-muted d-block">${b.user ? b.user.phone || '' : ''}</small>
-                    </td>
-                    <td>${b.flight ? b.flight.flightNumber + ' (' + b.flight.origin + '➝' + b.flight.destination + ')' : 'N/A'}</td>
-                    <td><span class="badge bg-secondary">${b.flightClass}</span></td>
-                    <td>
-                        <div class="small">
-                            ${b.passengers ? b.passengers.map(p => `<div>${p.fullName} (${p.age}, ${p.gender})</div>`).join('') : 'N/A'}
+        function updateStats(type, count) {
+            const statsRow = document.getElementById('stats-row');
+            const icons = { flights: 'airplane', airlines: 'building', cities: 'geo-alt', users: 'people', bookings: 'ticket-perforated' };
+            const colors = { flights: 'primary', airlines: 'warning', cities: 'info', users: 'success', bookings: 'danger' };
+
+            // Only update if current section matches type or first load
+            const activeType = document.querySelector('.nav-link-admin.active').innerText.trim().toLowerCase();
+            if (activeType.includes(type)) {
+                statsRow.innerHTML = `
+                    <div class="col-md-3">
+                        <div class="admin-card p-4 d-flex align-items-center">
+                            <div class="stat-badge bg-${colors[type]} bg-opacity-10 text-${colors[type]} me-3">
+                                <i class="bi bi-${icons[type]}"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted small fw-bold text-uppercase mb-1">Total ${type}</h6>
+                                <h3 class="mb-0 fw-bold">${count}</h3>
+                            </div>
                         </div>
-                    </td>
-                    <td><small>${b.paymentMethod || 'N/A'}<br><span class="text-muted">${b.transactionId || ''}</span></small></td>
-                    <td>₹${b.totalPrice || 0}</td>
-                    <td><span class="badge bg-${b.status === 'CONFIRMED' ? 'success' : 'danger'}">${b.status}</span></td>
-                    <td>
-                        ${b.status === 'CONFIRMED' ? `<button class="btn btn-sm btn-danger" onclick="cancelBookingAdmin(${b.id})">Cancel</button>` : ''}
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        async function cancelBookingAdmin(id) {
-            if (confirm('Cancel this booking?')) {
-                const res = await fetch(`${API_BASE}/user/bookings/cancel/${id}`, {
-                    method: 'POST',
-                    headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
-                });
-                if (res.ok) {
-                    alert('Booking cancelled!');
-                    loadBookings();
-                } else {
-                    alert('Error cancelling booking.');
-                }
+                    </div>
+                `;
             }
         }
 
-        // --- FLIGHTS ---
-        let allFlights = [];
-
-        async function loadFlights() {
-            const res = await fetch(`${API_BASE}/public/flights`);
-            allFlights = await res.json();
-            renderFlights(allFlights);
-        }
-
-        function renderFlights(flights) {
-            const tbody = document.getElementById('flightsTableBody');
-            tbody.innerHTML = flights.map(f => `
-                <tr>
-                    <td>${f.id}</td>
-                    <td>${f.flightNumber}</td>
-                    <td>${f.airlineName}</td>
-                    <td>${f.origin}</td>
-                    <td>${f.destination}</td>
-                    <td>${f.economySeatsAvailable}/${f.economySeatsTotal} | ₹${f.economyPrice}</td>
-                    <td>${f.businessSeatsAvailable}/${f.businessSeatsTotal} | ₹${f.businessPrice}</td>
-                    <td>
-                        <button class="btn btn-sm btn-info text-white" onclick='openPriceModal(${JSON.stringify(f)})'>Edit Price</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteFlight(${f.id})">Del</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function filterFlights() {
-            const airline = document.getElementById('flightSearchAirline').value.toLowerCase();
-            const origin = document.getElementById('flightSearchOrigin').value.toLowerCase();
-            const dest = document.getElementById('flightSearchDest').value.toLowerCase();
-
-            const filtered = allFlights.filter(f => {
-                return f.airlineName.toLowerCase().includes(airline) &&
-                    f.origin.toLowerCase().includes(origin) &&
-                    f.destination.toLowerCase().includes(dest);
-            });
-            renderFlights(filtered);
-        }
-
-        async function openPriceModal(flight) {
-            document.getElementById('p_flight_id').value = flight.id;
-            document.getElementById('p_economy').value = flight.economyPrice;
-            document.getElementById('p_business').value = flight.businessPrice;
-            new bootstrap.Modal(document.getElementById('priceModal')).show();
-        }
-
-        async function updateFlightPrices() {
-            const id = document.getElementById('p_flight_id').value;
-            // Fetch the full flight object first to preserve other fields
-            const flightRes = await fetch(`${API_BASE}/public/flights/${id}`);
-            const flight = await flightRes.json();
-
-            flight.economyPrice = document.getElementById('p_economy').value;
-            flight.businessPrice = document.getElementById('p_business').value;
-
-            const res = await fetch(`${API_BASE}/admin/flights/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + AUTH_HEADER },
-                body: JSON.stringify(flight)
-            });
-
-            if (res.ok) {
-                alert('Prices updated!');
-                bootstrap.Modal.getInstance(document.getElementById('priceModal')).hide();
-                loadFlights();
-            } else { alert('Error updating prices.'); }
-        }
-
-        async function openFlightModal() {
-            const res = await fetch(`${API_BASE}/admin/flights/next-number`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
-            document.getElementById('f_no').value = await res.text();
-
-            // Reload dropdowns
-            const air = await fetch(`${API_BASE}/public/airlines`);
-            const airlines = await air.json();
-            document.getElementById('f_airline').innerHTML = '<option value="">Select Airline</option>' +
-                airlines.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
-
-            const cit = await fetch(`${API_BASE}/public/cities`);
-            const cities = await cit.json();
-            const cityOptions = cities.map(c => `<option value="${c.name} (${c.code})">${c.name} (${c.code})</option>`).join('');
-            document.getElementById('f_origin').innerHTML = '<option value="">Select Origin</option>' + cityOptions;
-            document.getElementById('f_dest').innerHTML = '<option value="">Select Destination</option>' + cityOptions;
-
-            new bootstrap.Modal(document.getElementById('addFlightModal')).show();
-        }
-
-        function validatePositions() {
-            if (document.getElementById('f_origin').value === document.getElementById('f_dest').value && document.getElementById('f_origin').value !== "") {
-                alert("Origin and Destination cannot be same!");
-                document.getElementById('f_dest').value = "";
-            }
-        }
-
-        async function submitFlight() {
-            const ePrice = parseFloat(document.getElementById('f_economy_price').value);
-            const bPrice = parseFloat(document.getElementById('f_business_price').value);
-            const eSeats = parseInt(document.getElementById('f_economy_seats').value);
-            const bSeats = parseInt(document.getElementById('f_business_seats').value);
-
-            // Manual validation check before sending
-            if (ePrice < 3000 || ePrice > 10000 || bPrice < 5000 || bPrice > 40000) {
-                alert('Please ensure prices are within valid ranges.\nEconomy: ₹3000-₹10000\nBusiness: ₹5000-₹40000');
-                return;
-            }
-
+        // Logic for form submissions and deletions...
+        document.getElementById('addFlightForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             const flight = {
-                flightNumber: document.getElementById('f_no').value,
-                airlineName: document.getElementById('f_airline').value,
-                origin: document.getElementById('f_origin').value,
-                destination: document.getElementById('f_dest').value,
-                economyPrice: ePrice,
-                businessPrice: bPrice,
-                economySeatsTotal: eSeats,
-                economySeatsAvailable: eSeats,
-                businessSeatsTotal: bSeats,
-                businessSeatsAvailable: bSeats
+                flightNumber: document.getElementById('f_num').value,
+                airlineName: document.getElementById('f_airline_select').value,
+                origin: document.getElementById('f_origin_select').value,
+                destination: document.getElementById('f_dest_select').value,
+                economySeatsTotal: document.getElementById('f_eco_total').value,
+                businessSeatsTotal: document.getElementById('f_bus_total').value
             };
             const res = await fetch(`${API_BASE}/admin/flights`, {
                 method: 'POST',
@@ -608,225 +616,82 @@
                 body: JSON.stringify(flight)
             });
             if (res.ok) {
-                alert('Flight added!');
+                showMsg('Flight registered successfully');
                 bootstrap.Modal.getInstance(document.getElementById('addFlightModal')).hide();
                 loadFlights();
-                document.getElementById('addFlightForm').reset();
             } else {
-                alert('Error adding flight. Check ranges or admin rights.');
+                showMsg('Error creating flight', false);
             }
-        }
+        });
 
-        async function deleteFlight(id) {
-            if (confirm('Are you sure you want to delete this flight?')) {
-                const res = await fetch(`${API_BASE}/admin/flights/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
-                });
-                if (res.ok) {
-                    alert('Flight deleted!');
-                    loadFlights();
-                } else {
-                    const msg = await res.text();
-                    alert('Deletion failed: ' + msg);
-                }
-            }
-        }
-
-        // --- AIRLINES ---
-        async function loadAirlines() {
-            const res = await fetch(`${API_BASE}/public/airlines`);
-            const data = await res.json();
-            document.getElementById('airlinesTableBody').innerHTML = data.map(a => `
-                <tr><td>${a.id}</td><td>${a.name}</td><td>
-                <button class="btn btn-sm btn-info" onclick='editAirline(${JSON.stringify(a)})'>Edit</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteAirline(${a.id})">Del</button></td></tr>
-            `).join('');
-        }
-        function openAirlineModal() {
-            document.getElementById('airline_id').value = "";
-            document.getElementById('airline_name').value = "";
-            new bootstrap.Modal(document.getElementById('airlineModal')).show();
-        }
-        function editAirline(a) {
-            document.getElementById('airline_id').value = a.id;
-            document.getElementById('airline_name').value = a.name;
-            new bootstrap.Modal(document.getElementById('airlineModal')).show();
-        }
-        async function saveAirline() {
-            const id = document.getElementById('airline_id').value;
-            const name = document.getElementById('airline_name').value;
-            const method = id ? 'PUT' : 'POST';
-            const url = id ? `${API_BASE}/admin/airlines/${id}` : `${API_BASE}/admin/airlines`;
-            await fetch(url, {
-                method, headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + AUTH_HEADER },
-                body: JSON.stringify({ name })
+        document.getElementById('addAirlineForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('a_name').value;
+            const user = document.getElementById('a_user').value;
+            const res = await fetch(`${API_BASE}/admin/airlines?name=${name}&ownerUsername=${user}`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
             });
-            bootstrap.Modal.getInstance(document.getElementById('airlineModal')).hide();
-            loadAirlines();
-        }
-        async function deleteAirline(id) {
-            if (confirm('Delete?')) {
-                await fetch(`${API_BASE}/admin/airlines/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
+            if (res.ok) {
+                showMsg('Airline account created');
+                bootstrap.Modal.getInstance(document.getElementById('addAirlineModal')).hide();
                 loadAirlines();
+            } else {
+                showMsg('Error: Check if user exists or already owns an airline', false);
             }
-        }
+        });
 
-        // --- CITIES ---
-        async function loadCities() {
-            const res = await fetch(`${API_BASE}/public/cities`);
-            const data = await res.json();
-            document.getElementById('citiesTableBody').innerHTML = data.map(c => `
-                <tr><td>${c.id}</td><td>${c.name}</td><td>${c.code}</td><td>
-                <button class="btn btn-sm btn-info" onclick='editCity(${JSON.stringify(c)})'>Edit</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteCity(${c.id})">Del</button></td></tr>
-            `).join('');
-        }
-        function openCityModal() {
-            document.getElementById('city_id').value = "";
-            document.getElementById('city_name').value = "";
-            document.getElementById('city_code').value = "";
-            new bootstrap.Modal(document.getElementById('cityModal')).show();
-        }
-        function editCity(c) {
-            document.getElementById('city_id').value = c.id;
-            document.getElementById('city_name').value = c.name;
-            document.getElementById('city_code').value = c.code;
-            new bootstrap.Modal(document.getElementById('cityModal')).show();
-        }
-        async function saveCity() {
-            const id = document.getElementById('city_id').value;
-            const city = { name: document.getElementById('city_name').value, code: document.getElementById('city_code').value };
-            const method = id ? 'PUT' : 'POST';
-            const url = id ? `${API_BASE}/public/cities/admin/${id}` : `${API_BASE}/public/cities/admin`;
-            await fetch(url, {
-                method, headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + AUTH_HEADER },
+        document.getElementById('addCityForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const city = { name: document.getElementById('c_name').value, code: document.getElementById('c_code').value };
+            const res = await fetch(`${API_BASE}/admin/cities`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + AUTH_HEADER },
                 body: JSON.stringify(city)
             });
-            bootstrap.Modal.getInstance(document.getElementById('cityModal')).hide();
-            loadCities();
-        }
-        async function deleteCity(id) {
-            if (confirm('Delete?')) {
-                await fetch(`${API_BASE}/public/cities/admin/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
-                loadCities();
-            }
-        }
-
-        // --- USERS ---
-        let allUsers = [];
-
-        async function loadUsers() {
-            const res = await fetch(`${API_BASE}/admin/users`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
-            allUsers = await res.json();
-            renderUsers(allUsers);
-        }
-
-        function renderUsers(users) {
-            document.getElementById('usersTableBody').innerHTML = users.map(u => `
-                <tr>
-                    <td>${u.id}</td>
-                    <td>${u.username}</td>
-                    <td>${u.email || ''}</td>
-                    <td>${u.fullName || ''}</td>
-                    <td>${u.role}${u.airlineName ? ' (' + u.airlineName + ')' : ''}</td>
-                    <td>
-                        <button class="btn btn-sm btn-info text-white" onclick='openUserModal(${JSON.stringify(u)})'>Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteUserAccount(${u.id})">Del</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function filterUsers() {
-            const name = document.getElementById('userSearchName').value.toLowerCase();
-            const role = document.getElementById('userRoleFilter').value;
-
-            const filtered = allUsers.filter(u => {
-                const matchesName = (u.fullName || '').toLowerCase().includes(name) || u.username.toLowerCase().includes(name);
-                const matchesRole = role === "" || u.role === role;
-                return matchesName && matchesRole;
-            });
-            renderUsers(filtered);
-        }
-
-        async function openUserModal(user = null) {
-            document.getElementById('userForm').reset();
-            document.getElementById('u_id').value = user ? user.id : '';
-            document.getElementById('u_username').disabled = user ? true : false;
-            document.getElementById('pw_label').innerText = user ? 'New Password (leave blank to keep current)' : 'Password';
-
-            if (user) {
-                document.getElementById('u_username').value = user.username;
-                document.getElementById('u_fullname').value = user.fullName || '';
-                document.getElementById('u_email').value = user.email || '';
-                document.getElementById('u_phone').value = user.phone || '';
-                document.getElementById('u_role').value = user.role;
-                // Wait for airlines to load before setting value
-                await loadAirlinesForUserModal();
-                document.getElementById('u_airline').value = user.airlineName || '';
-            } else {
-                await loadAirlinesForUserModal();
-            }
-
-            toggleAirlineField();
-            new bootstrap.Modal(document.getElementById('userModal')).show();
-        }
-
-        async function loadAirlinesForUserModal() {
-            const res = await fetch(`${API_BASE}/public/airlines`);
-            const airlines = await res.json();
-            document.getElementById('u_airline').innerHTML = '<option value="">Select Airline</option>' +
-                airlines.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
-        }
-
-        function toggleAirlineField() {
-            const role = document.getElementById('u_role').value;
-            document.getElementById('airline_field').style.display = (role === 'AIRLINE') ? 'block' : 'none';
-        }
-
-        async function saveAdminUser() {
-            const id = document.getElementById('u_id').value;
-            const user = {
-                username: document.getElementById('u_username').value,
-                fullName: document.getElementById('u_fullname').value,
-                email: document.getElementById('u_email').value,
-                phone: document.getElementById('u_phone').value,
-                role: document.getElementById('u_role').value,
-                airlineName: document.getElementById('u_airline').value
-            };
-
-            const password = document.getElementById('u_password').value;
-            if (password) user.password = password;
-            else if (!id) { alert('Password is required for new users!'); return; }
-
-            const url = id ? `${API_BASE}/admin/users/${id}` : `${API_BASE}/admin/users`;
-            const method = id ? 'PUT' : 'POST';
-
-            const res = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + AUTH_HEADER },
-                body: JSON.stringify(user)
-            });
-
             if (res.ok) {
-                alert(id ? 'User updated!' : 'User created!');
-                bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
-                loadUsers();
+                showMsg('New destination added');
+                bootstrap.Modal.getInstance(document.getElementById('addCityModal')).hide();
+                loadCities();
             } else {
-                const err = await res.json();
-                alert('Error: ' + (err.message || 'Check inputs.'));
+                showMsg('Error adding city', false);
             }
-        }
-        async function deleteUserAccount(id) {
-            if (confirm('Delete?')) {
-                await fetch(`${API_BASE}/admin/users/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
-                loadUsers();
+        });
+
+        async function deleteItem(type, id) {
+            if (!confirm(`Are you sure you want to delete this ${type.slice(0, -1)}?`)) return;
+            const res = await fetch(`${API_BASE}/admin/${type}/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
+            });
+            if (res.ok) {
+                showMsg('Item deleted');
+                refreshData(type);
+            } else {
+                const text = await res.text();
+                showMsg(text || 'Delete failed', false);
             }
         }
 
-        // Initial Load
-        loadFlights();
+        async function preloadDropdowns() {
+            try {
+                const [airlines, cities] = await Promise.all([
+                    fetch(`${API_BASE}/admin/airlines`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } }).then(r => r.json()),
+                    fetch(`${API_BASE}/public/cities`).then(r => r.json())
+                ]);
+                document.getElementById('f_airline_select').innerHTML = airlines.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+                document.getElementById('f_origin_select').innerHTML = cities.map(c => `<option value="${c.name}">${c.name} (${c.code})</option>`).join('');
+                document.getElementById('f_dest_select').innerHTML = cities.map(c => `<option value="${c.name}">${c.name} (${c.code})</option>`).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+
+        // Initialize
+        showSection('flights');
+        preloadDropdowns();
     </script>
 </body>
 
