@@ -3,82 +3,234 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airline Dashboard - Udaan</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary: #2563eb;
+            --bg-light: #f8fafc;
+            --dark: #0f172a;
+        }
+
         body {
-            padding: 40px;
-            background: #f4f7f6;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-light);
+            color: #334155;
+            min-height: 100vh;
         }
 
-        .dashboard-container {
-            max-width: 1000px;
+        /* Navbar */
+        .dashboard-nav {
+            background-color: var(--dark);
+            padding: 1rem 2rem;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Main Content */
+        .dashboard-main {
+            padding: 2rem;
+            max-width: 1400px;
             margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
 
-        .header {
+        /* Stats Cards */
+        .stat-card {
+            border: none;
+            border-radius: 20px;
+            padding: 1.5rem;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Table Styling */
+        .data-table-card {
+            border: none;
+            border-radius: 24px;
+            background: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table thead {
+            background-color: #f1f5f9;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .table th {
+            border: none;
+            padding: 1.25rem 1rem;
+        }
+
+        .table td {
+            vertical-align: middle;
+            padding: 1.25rem 1rem;
+            border-color: #f1f5f9;
+        }
+
+        /* Status Badges */
+        .badge-pill {
+            border-radius: 50px;
+            padding: 6px 12px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        /* Modal */
+        .modal-content {
+            border-radius: 24px;
+            border: none;
+        }
+
+        .modal-header {
+            background: var(--dark);
+            color: white;
+            border-radius: 24px 24px 0 0;
+        }
+
+        .btn-modern {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 10px 24px;
+            transition: all 0.2s;
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 
 <body>
-    <div class="dashboard-container">
-        <div class="header">
-            <h2 class="fw-bold" id="dashboardTitle">Airline Dashboard</h2>
-            <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
+    <nav class="dashboard-nav d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <span class="fs-4 me-2">✈️</span>
+            <h4 class="mb-0 fw-bold" id="dashboardTitle">Airline Panel</h4>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-white-50 small" id="currentRole">Airline Staff</span>
+            <button class="btn btn-outline-danger btn-sm rounded-3 px-3" onclick="logout()">
+                <i class="bi bi-box-arrow-right me-2"></i>Logout
+            </button>
+        </div>
+    </nav>
+
+    <div class="dashboard-main">
+        <!-- Quick Stats -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-airplane"></i>
+                    </div>
+                    <h6 class="text-muted small fw-bold text-uppercase">Total Flights</h6>
+                    <h3 class="mb-0 fw-bold" id="stat-flights">0</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-ticket-perforated"></i>
+                    </div>
+                    <h6 class="text-muted small fw-bold text-uppercase">Total Bookings</h6>
+                    <h3 class="mb-0 fw-bold" id="stat-bookings">0</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-currency-rupee"></i>
+                    </div>
+                    <h6 class="text-muted small fw-bold text-uppercase">Estimated Revenue</h6>
+                    <h3 class="mb-0 fw-bold" id="stat-revenue">₹0</h3>
+                </div>
+            </div>
         </div>
 
-        <h4 class="mb-3 text-muted">Manage Your Flight Schedules</h4>
-        <table class="table table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>Flight No</th>
-                    <th>Origin</th>
-                    <th>Destination</th>
-                    <th>Economy Details</th>
-                    <th>Business Details</th>
-                    <th>Departure</th>
-                    <th>Arrival</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="flightsTableBody"></tbody>
-        </table>
-
-        <div class="mt-5">
-            <h4 class="mb-3 text-muted">Recent Bookings on Your Flights</h4>
-            <div class="table-responsive">
-                <table class="table table-striped bg-white shadow-sm rounded">
-                    <thead class="table-info">
-                        <tr>
-                            <th>Ref ID</th>
-                            <th>User Details</th>
-                            <th>Flight</th>
-                            <th>Class</th>
-                            <th>Passenger Details</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bookingsTableBody"></tbody>
-                </table>
+        <div class="row">
+            <div class="col-12">
+                <div class="data-table-card">
+                    <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-dark">Flight Schedules</h5>
+                        <button class="btn btn-primary btn-sm rounded-3" onclick="loadMyFlights()">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Flight No</th>
+                                    <th>Route</th>
+                                    <th>Economy Seats</th>
+                                    <th>Business Seats</th>
+                                    <th>Departure</th>
+                                    <th>Arrival</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="flightsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            <!-- Booking Pagination -->
-            <div class="d-flex justify-content-center mt-3">
-                <nav aria-label="Booking pagination">
-                    <ul class="pagination pagination-sm" id="booking-pagination">
-                        <!-- Pagination buttons -->
-                    </ul>
-                </nav>
+            <div class="col-12 mt-4">
+                <div class="data-table-card">
+                    <div class="p-4 border-bottom">
+                        <h5 class="mb-0 fw-bold text-dark">Recent Customer Bookings</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Ref ID</th>
+                                    <th>Customer Details</th>
+                                    <th>Flight</th>
+                                    <th>Class</th>
+                                    <th>Passenger Info</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <!-- Booking Pagination -->
+                    <div class="p-3 bg-light border-top">
+                        <nav aria-label="Booking pagination">
+                            <ul class="pagination pagination-sm justify-content-center mb-0" id="booking-pagination">
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -86,35 +238,36 @@
     <!-- Edit Schedule Modal -->
     <div class="modal fade" id="editScheduleModal" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content shadow-lg">
                 <div class="modal-header">
-                    <h5 class="modal-title">Update Flight Schedule</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title fw-bold">Update Flight Schedule</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <input type="hidden" id="edit_f_id">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Departure Time</label>
-                        <input type="datetime-local" id="edit_f_dep" class="form-control">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Departure Time</label>
+                        <input type="datetime-local" id="edit_f_dep" class="form-control rounded-3 py-2">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Arrival Time</label>
-                        <input type="datetime-local" id="edit_f_arr" class="form-control">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Arrival Time</label>
+                        <input type="datetime-local" id="edit_f_arr" class="form-control rounded-3 py-2">
                     </div>
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Economy Price</label>
-                            <input type="number" id="edit_f_eco" class="form-control">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Economy Price (₹)</label>
+                            <input type="number" id="edit_f_eco" class="form-control rounded-3 py-2">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Business Price</label>
-                            <input type="number" id="edit_f_bus" class="form-control">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Business Price (₹)</label>
+                            <input type="number" id="edit_f_bus" class="form-control rounded-3 py-2">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="saveSchedule()">Update Schedule</button>
+                <div class="modal-footer border-0 pb-4 pe-4">
+                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-modern" onclick="saveSchedule()">Update
+                        Schedule</button>
                 </div>
             </div>
         </div>
@@ -128,7 +281,7 @@
 
         if (!AUTH_HEADER || !AIRLINE_NAME) window.location.href = 'login.html';
 
-        document.getElementById('dashboardTitle').innerText = `${AIRLINE_NAME} Panel`;
+        document.getElementById('dashboardTitle').innerText = `${AIRLINE_NAME} Control Center`;
 
         loadMyFlights();
         loadAirlineBookings();
@@ -149,23 +302,28 @@
                 const tbody = document.getElementById('bookingsTableBody');
                 tbody.innerHTML = bookings.map(b => `
                     <tr>
-                        <td>#${b.id}</td>
+                        <td><span class="text-primary font-monospace">#${b.id}</span></td>
                         <td>
-                            <div class="fw-bold">${b.user ? b.user.username : 'N/A'}</div>
+                            <div class="fw-bold text-dark">${b.user ? b.user.username : 'N/A'}</div>
                             <small class="text-muted d-block">${b.user ? b.user.email : ''}</small>
-                            <small class="text-muted d-block">${b.user ? b.user.phone || '' : ''}</small>
                         </td>
-                        <td>${b.flight ? b.flight.flightNumber : 'N/A'}</td>
-                        <td><span class="badge bg-secondary">${b.flightClass}</span></td>
+                        <td><span class="badge bg-light text-dark border">${b.flight ? b.flight.flightNumber : 'N/A'}</span></td>
+                        <td><small class="text-uppercase fw-bold text-muted">${b.flightClass}</small></td>
                         <td>
                             <div class="small">
-                                ${b.passengers ? b.passengers.map(p => `<div>${p.fullName} (${p.age}, ${p.gender})</div>`).join('') : 'N/A'}
+                                ${b.passengers ? b.passengers.map(p => `<div class="text-nowrap">${p.fullName} <span class="text-muted">(${p.age}, ${p.gender})</span></div>`).join('') : 'N/A'}
                             </div>
                         </td>
-                        <td><small class="fw-bold text-success">₹${b.totalPrice || 0}</small></td>
-                        <td><span class="badge bg-${b.status === 'CONFIRMED' ? 'success' : 'danger'}">${b.status}</span></td>
+                        <td><div class="fw-bold text-success">₹${(b.totalPrice || 0).toLocaleString()}</div></td>
+                        <td><span class="badge-pill bg-${b.status === 'CONFIRMED' ? 'success' : 'danger'} bg-opacity-10 text-${b.status === 'CONFIRMED' ? 'success' : 'danger'}">${b.status}</span></td>
                     </tr>
                 `).join('');
+
+                document.getElementById('stat-bookings').innerText = data.totalElements || '0';
+
+                // Estimate Revenue (only for confirmed)
+                let revenue = bookings.filter(b => b.status === 'CONFIRMED').reduce((acc, b) => acc + (b.totalPrice || 0), 0);
+                document.getElementById('stat-revenue').innerText = '₹' + revenue.toLocaleString();
 
                 renderBookingPagination(totalPages, page);
             } catch (err) { console.error(err); }
@@ -177,42 +335,51 @@
 
             let html = `
                 <li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" onclick="loadAirlineBookings(${currentPage - 1})">Previous</a>
+                    <a class="page-link shadow-none border-0" href="#" onclick="loadAirlineBookings(${currentPage - 1})">Previous</a>
                 </li>
             `;
             for (let i = 0; i < totalPages; i++) {
                 html += `
                     <li class="page-item ${i === currentPage ? 'active' : ''}">
-                        <a class="page-link" href="#" onclick="loadAirlineBookings(${i})">${i + 1}</a>
+                        <a class="page-link shadow-none" href="#" onclick="loadAirlineBookings(${i})">${i + 1}</a>
                     </li>
                 `;
             }
             html += `
                 <li class="page-item ${currentPage === totalPages - 1 || totalPages === 0 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" onclick="loadAirlineBookings(${currentPage + 1})">Next</a>
+                    <a class="page-link shadow-none border-0" href="#" onclick="loadAirlineBookings(${currentPage + 1})">Next</a>
                 </li>
             `;
             pag.innerHTML = html;
         }
 
         async function loadMyFlights() {
-            const res = await fetch(`${API_BASE}/airline/flights?airlineName=${encodeURIComponent(AIRLINE_NAME)}`, {
-                headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
-            });
-            const flights = await res.json();
-            const tbody = document.getElementById('flightsTableBody');
-            tbody.innerHTML = flights.map(f => `
-                <tr>
-                    <td class="fw-bold">${f.flightNumber}</td>
-                    <td>${f.origin}</td>
-                    <td>${f.destination}</td>
-                    <td>${f.economySeatsAvailable}/${f.economySeatsTotal} | ₹${f.economyPrice}</td>
-                    <td>${f.businessSeatsAvailable}/${f.businessSeatsTotal} | ₹${f.businessPrice}</td>
-                    <td>${f.departureTime ? f.departureTime.replace('T', ' ') : '<span class="text-danger">NOT SET</span>'}</td>
-                    <td>${f.arrivalTime ? f.arrivalTime.replace('T', ' ') : '<span class="text-danger">NOT SET</span>'}</td>
-                    <td><button class="btn btn-sm btn-primary" onclick='openEditModal(${JSON.stringify(f)})'>Edit Schedule</button></td>
-                </tr>
-            `).join('');
+            try {
+                const res = await fetch(`${API_BASE}/airline/flights?airlineName=${encodeURIComponent(AIRLINE_NAME)}`, {
+                    headers: { 'Authorization': 'Basic ' + AUTH_HEADER }
+                });
+                const flights = await res.json();
+                const tbody = document.getElementById('flightsTableBody');
+                tbody.innerHTML = flights.map(f => `
+                    <tr>
+                        <td class="fw-bold text-dark">${f.flightNumber}</td>
+                        <td>
+                            <div class="text-dark fw-bold">${f.origin.split(' ')[0]} ➝ ${f.destination.split(' ')[0]}</div>
+                            <small class="text-muted">${f.origin} to ${f.destination}</small>
+                        </td>
+                        <td><small class="text-muted d-block">${f.economySeatsAvailable}/${f.economySeatsTotal} left</small> <span class="fw-bold">₹${f.economyPrice}</span></td>
+                        <td><small class="text-muted d-block">${f.businessSeatsAvailable}/${f.businessSeatsTotal} left</small> <span class="fw-bold">₹${f.businessPrice}</span></td>
+                        <td>${f.departureTime ? new Date(f.departureTime).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '<span class="text-danger small fw-bold">NOT SET</span>'}</td>
+                        <td>${f.arrivalTime ? new Date(f.arrivalTime).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '<span class="text-danger small fw-bold">NOT SET</span>'}</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-light border rounded-pill px-3 shadow-sm" onclick='openEditModal(${JSON.stringify(f)})'>
+                                <i class="bi bi-pencil-square me-1"></i> Edit
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                document.getElementById('stat-flights').innerText = flights.length;
+            } catch (err) { console.error(err); }
         }
 
         function openEditModal(f) {
@@ -238,9 +405,9 @@
                 body: JSON.stringify(schedule)
             });
             if (res.ok) {
-                alert('Schedule updated successfully!');
                 bootstrap.Modal.getInstance(document.getElementById('editScheduleModal')).hide();
                 loadMyFlights();
+                alert('Schedule updated successfully!');
             } else {
                 alert('Failed to update schedule.');
             }
@@ -250,8 +417,6 @@
             localStorage.clear();
             window.location.href = 'login.html';
         }
-
-        loadMyFlights();
     </script>
 </body>
 
