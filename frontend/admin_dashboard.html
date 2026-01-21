@@ -316,8 +316,8 @@
                         <form id="addFlightForm" class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold">Flight Number</label>
-                                <input type="text" id="f_num" class="form-control rounded-3" placeholder="UK-123"
-                                    required>
+                                <input type="text" id="f_num" class="form-control rounded-3" placeholder="Fetching..."
+                                    readonly required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold">Airline</label>
@@ -340,14 +340,6 @@
                                 <label class="form-label small fw-bold">Business Seats</label>
                                 <input type="number" id="f_bus_total" class="form-control rounded-3" value="20"
                                     required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Departure Time</label>
-                                <input type="datetime-local" id="f_dep_time" class="form-control rounded-3" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold">Arrival Time</label>
-                                <input type="datetime-local" id="f_arr_time" class="form-control rounded-3" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold">Economy Price (₹)</label>
@@ -507,10 +499,18 @@
         function updateActionHeader(id) {
             const container = document.getElementById('action-header');
             container.innerHTML = '';
-            if (id === 'flights') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addFlightModal"><i class="bi bi-plus-lg me-2"></i>New Flight</button>';
+            if (id === 'flights') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addFlightModal" onclick="fetchNextFlightNumber()"><i class="bi bi-plus-lg me-2"></i>New Flight</button>';
             if (id === 'airlines') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addAirlineModal"><i class="bi bi-plus-lg me-2"></i>Add Airline</button>';
             if (id === 'cities') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addCityModal"><i class="bi bi-plus-lg me-2"></i>Add City</button>';
             if (id === 'users') container.innerHTML = '<button class="btn btn-primary btn-admin" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="bi bi-person-plus me-2"></i>New User</button>';
+        }
+
+        async function fetchNextFlightNumber() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/flights/next-number`, { headers: { 'Authorization': 'Basic ' + AUTH_HEADER } });
+                const nextNum = await res.text();
+                document.getElementById('f_num').value = nextNum;
+            } catch (err) { console.error('Error fetching next flight number:', err); }
         }
 
         function refreshData(id) {
@@ -751,8 +751,6 @@
                 destination: document.getElementById('f_dest_select').value,
                 economySeatsTotal: document.getElementById('f_eco_total').value,
                 businessSeatsTotal: document.getElementById('f_bus_total').value,
-                departureTime: document.getElementById('f_dep_time').value,
-                arrivalTime: document.getElementById('f_arr_time').value,
                 economyPrice: document.getElementById('f_eco_price').value,
                 businessPrice: document.getElementById('f_bus_price').value
             };

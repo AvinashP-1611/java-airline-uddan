@@ -32,10 +32,10 @@ public class Flight {
     @Column(nullable = false)
     private String destination;
 
-    @Column(name = "departure_time")
+    @Column(name = "departure_time", nullable = true)
     private LocalDateTime departureTime;
 
-    @Column(name = "arrival_time")
+    @Column(name = "arrival_time", nullable = true)
     private LocalDateTime arrivalTime;
 
     @Column(name = "economy_price", nullable = false)

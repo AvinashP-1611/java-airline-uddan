@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     phone VARCHAR(20),
-    role ENUM('ADMIN', 'USER') NOT NULL,
+    role ENUM('ADMIN', 'USER', 'AIRLINE') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS flights (
     airline_name VARCHAR(50) NOT NULL,
     origin VARCHAR(50) NOT NULL,
     destination VARCHAR(50) NOT NULL,
-    departure_time DATETIME NOT NULL,
-    arrival_time DATETIME NOT NULL,
+    departure_time DATETIME,
+    arrival_time DATETIME,
     price DECIMAL(10, 2) NOT NULL,
     total_seats INT NOT NULL,
     available_seats INT NOT NULL,
